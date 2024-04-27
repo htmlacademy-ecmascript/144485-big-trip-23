@@ -1,7 +1,7 @@
 # Проект «Большое путешествие»
 
 * Студент: [Максим Розов](https://up.htmlacademy.ru/ecmascript/23/user/144485).
-* Наставник: `Неизвестно`.
+* Наставник: [Arthur Litovko](https://htmlacademy.ru/profile/id6927).
 
 ---
 
