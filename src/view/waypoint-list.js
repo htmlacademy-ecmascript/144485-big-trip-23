@@ -1,10 +1,10 @@
 import {createElement} from '../render.js';
 
-const creatEventButton = () => '<button class="trip-main__event-add-btn  btn  btn--big  btn--yellow" type="button">New event</button>';
+const creatWaypointList = () => '<ul class="trip-events__list"></ul>';
 
-export default class CreationForm{
+export default class WaypointList{
   getTemplate(){
-    return creatEventButton();
+    return creatWaypointList();
   }
 
   getElement(){

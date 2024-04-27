@@ -25,7 +25,7 @@ const creatFilterPanel = () => `
 <button class="visually-hidden" type="submit">Accept filter</button>
 </form>`;
 
-export default class FilterControlPanel{
+export default class Filter{
   getTemplate(){
     return creatFilterPanel();
   }
