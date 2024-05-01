@@ -6,10 +6,12 @@ import TripInfo from '../view/trip-info.js';
 import WaypointList from '../view/waypoint-list.js';
 import Waypoint from '../view/waypoint.js';
 import WaypointForm from '../view/waypoint-form.js';
-//
+
 export default class Presenter {
 
-  constructor(){
+  constructor({ pointsModel }) {
+    this.pointsModel = pointsModel;
+    this.pointsModelAll = [...this.pointsModel.getEvent()];
     this.pageHeaderElement = document.querySelector('.page-header');
     this.tripMainElement = this.pageHeaderElement.querySelector('.trip-main');
     this.tripControlsFiltersElement = this.pageHeaderElement.querySelector('.trip-controls__filters');
@@ -17,46 +19,46 @@ export default class Presenter {
     this.tripEventsElement = this.pageMainElement.querySelector('.trip-events');
   }
 
-  renderCreationform(){
+  renderCreationform() {
     render(new CreationForm(), this.tripMainElement);
   }
 
-  renderFilter(){
+  renderFilter() {
     render(new Filter(), this.tripControlsFiltersElement);
   }
 
-  renderSortPanel(){
+  renderSortPanel() {
     render(new SortPanel(), this.tripEventsElement);
   }
 
-  renderTripInfo(){
+  renderTripInfo() {
     render(new TripInfo(), this.tripMainElement, RenderPosition.AFTERBEGIN);
   }
 
-  renderWaypointList(){
+  renderWaypointList() {
     render(new WaypointList(), this.tripEventsElement);
   }
 
-  renderWaypointForm(){
+  renderWaypointForm() {
     const tripEventsListElement = this.pageMainElement.querySelector('.trip-events__list');
-    render(new WaypointForm(), tripEventsListElement, RenderPosition.AFTERBEGIN);
+    render(new WaypointForm({ waypointOne: this.pointsModelAll[0] }), tripEventsListElement, RenderPosition.AFTERBEGIN);
   }
 
-  renderWaypoint(){
+  renderWaypoint() {
     const tripEventsListElement = this.pageMainElement.querySelector('.trip-events__list');
-    for(let i = 1; i <= 3; i++) {
-      render(new Waypoint(), tripEventsListElement);
+    for (let i = 0; i <= this.pointsModelAll.length; i++) {
+      render(new Waypoint({ waypoint: this.pointsModelAll[i] }), tripEventsListElement);
     }
   }
 
-  init(){
+  init() {
     this.renderCreationform();
     this.renderFilter();
     this.renderSortPanel();
     this.renderTripInfo();
     this.renderWaypointList();
-    this.renderWaypoint();
     this.renderWaypointForm();
+    this.renderWaypoint();
   }
 
 }
