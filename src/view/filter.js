@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import { createElement } from '../render.js';
 
 const creatFilterPanel = () => `
 <form class="trip-filters" action="#" method="get">
@@ -25,21 +25,20 @@ const creatFilterPanel = () => `
 <button class="visually-hidden" type="submit">Accept filter</button>
 </form>`;
 
-export default class Filter{
-  getTemplate(){
+export default class Filter {
+  getTemplate() {
     return creatFilterPanel();
   }
 
-  getElement(){
-    if(!this.element){
+  getElement() {
+    if (!this.element) {
       this.element = createElement(this.getTemplate());
     }
 
     return this.element;
   }
 
-  removeElement(){
+  removeElement() {
     this.element = null;
   }
 }
-

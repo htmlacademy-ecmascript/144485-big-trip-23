@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import { createElement } from '../render.js';
 
 const creatTripInfo = () =>
   `<section class="trip-main__trip-info  trip-info">
@@ -13,21 +13,20 @@ const creatTripInfo = () =>
 </p>
 </section>`;
 
-export default class TripInfo{
-  getTemplate(){
+export default class TripInfo {
+  getTemplate() {
     return creatTripInfo();
   }
 
-  getElement(){
-    if(!this.element){
+  getElement() {
+    if (!this.element) {
       this.element = createElement(this.getTemplate());
     }
 
     return this.element;
   }
 
-  removeElement(){
+  removeElement() {
     this.element = null;
   }
 }
-
