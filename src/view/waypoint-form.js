@@ -174,7 +174,6 @@ const creatWaypointForm = (waypointOne) => {
 };
 
 export default class WaypointForm {
-
   constructor({ waypointOne }) {
     this.waypointOne = waypointOne;
   }
@@ -195,4 +194,3 @@ export default class WaypointForm {
     this.element = null;
   }
 }
-

@@ -3,7 +3,6 @@ import { EVENTTYPES } from './event-types.js';
 import { LOCATIONS } from './locations.js';
 import { createId, getRandomInteger, getRandomArrayElement } from '../util.js';
 
-
 const generateDates = () => {
   const maxGap = 14;
 
@@ -19,8 +18,8 @@ const generateDates = () => {
     .add(getRandomInteger(0, 59), 'minute');
 
   return {
-    start: startDate.toISOString(),
-    end: endDay.toISOString()
+    dateFrom: startDate.toISOString(),
+    dateTo: endDay.toISOString(),
   };
 };
 
@@ -31,16 +30,14 @@ const generateTripEvent = () => {
   const generatePrice = () => getRandomInteger(1, 100) * 10;
   const idTripEvent = createId();
 
-
   return {
     id: idTripEvent(),
     basePrice: generatePrice(),
-    dateFrom: dates.start,
-    dateTo: dates.end,
+    ...dates,
     destination: locationsRandom,
     isFavorite: Boolean(getRandomInteger(0, 1)),
     events: eventRandom,
-    type: eventRandom.type
+    type: eventRandom.type,
   };
 };
 

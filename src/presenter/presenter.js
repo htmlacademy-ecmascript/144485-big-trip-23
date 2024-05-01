@@ -8,7 +8,6 @@ import Waypoint from '../view/waypoint.js';
 import WaypointForm from '../view/waypoint-form.js';
 
 export default class Presenter {
-
   constructor({ pointsModel }) {
     this.pointsModel = pointsModel;
     this.pointsModelAll = [...this.pointsModel.getEvent()];
@@ -60,5 +59,4 @@ export default class Presenter {
     this.renderWaypointForm();
     this.renderWaypoint();
   }
-
 }

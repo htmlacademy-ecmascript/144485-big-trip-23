@@ -15,5 +15,4 @@ const getRandomInteger = (a = 0, b = 1) => {
 
 const getRandomArrayElement = (elements) => elements[getRandomInteger(0, elements.length - 1)];
 
-
 export { createId, getRandomInteger, getRandomArrayElement };

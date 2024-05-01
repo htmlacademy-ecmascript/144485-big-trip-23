@@ -18,7 +18,6 @@ const createOffers = (eventType, offersByTypes) => {
   return offersByCurrentType.map(createOfferMarkup).join('');
 };
 
-
 const getDuration = (beginISO, endISO) => {
   const getTimeDiff = () => {
     const startDate = dayjs(beginISO).toDate();
@@ -47,7 +46,6 @@ const getDuration = (beginISO, endISO) => {
 
   return resultArray.join(' ');
 };
-
 
 const creatWaypoint = (waypoint) => {
   const { basePrice: price, dateStart: ISOFrom, dateEnd: ISOTo, destination, isFavorite, type } = waypoint;
@@ -97,7 +95,6 @@ const creatWaypoint = (waypoint) => {
 };
 
 export default class Waypoint {
-
   constructor({ waypoint }) {
     this.waypoint = waypoint;
   }
@@ -118,4 +115,3 @@ export default class Waypoint {
     this.element = null;
   }
 }
-
