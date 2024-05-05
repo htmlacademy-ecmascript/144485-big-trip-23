@@ -1,10 +1,10 @@
 import { createElement } from '../render.js';
 
-const creatEventButton = () => '<button class="trip-main__event-add-btn  btn  btn--big  btn--yellow" type="button">New event</button>';
+const createEventButton = () => '<button class="trip-main__event-add-btn  btn  btn--big  btn--yellow" type="button">New event</button>';
 
 export default class CreationForm {
   getTemplate() {
-    return creatEventButton();
+    return createEventButton();
   }
 
   getElement() {

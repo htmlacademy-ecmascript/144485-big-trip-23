@@ -1,6 +1,6 @@
 import { createElement } from '../render.js';
 
-const creatTripInfo = () =>
+const createTripInfo = () =>
   `<section class="trip-main__trip-info  trip-info">
 <div class="trip-info__main">
   <h1 class="trip-info__title">Amsterdam — Chamonix — Geneva</h1>
@@ -15,7 +15,7 @@ const creatTripInfo = () =>
 
 export default class TripInfo {
   getTemplate() {
-    return creatTripInfo();
+    return createTripInfo();
   }
 
   getElement() {

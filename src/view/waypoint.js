@@ -1,6 +1,7 @@
 import { createElement } from '../render.js';
+import { destinationCreateAll } from '../mock/destination.js';
+import { createRandomOffers } from '../mock/offer-mock.js';
 import dayjs from 'dayjs';
-import { EVENTTYPES } from '../mock/event-types.js';
 
 const createOfferMarkup = (offer) => `<li class="event__offer">
 <span class="event__offer-title">${offer.title}</span>
@@ -8,14 +9,16 @@ const createOfferMarkup = (offer) => `<li class="event__offer">
 <span class="event__offer-price">${offer.price}</span>
 </li>`;
 
-const createOffers = (eventType, offersByTypes) => {
-  let offersByCurrentType = [];
-  for (let i = 0; i < offersByTypes.length; i++) {
-    if (offersByTypes[i].type === eventType) {
-      offersByCurrentType = offersByTypes[i].offers;
-    }
+const getOffersChoose = (type, offerChoose) => {
+  const getOffersAll = createRandomOffers();
+  const getCurrentOffer = getOffersAll.find((element) => element.type === type);
+  let offers;
+  if (getCurrentOffer && getCurrentOffer.offer && getCurrentOffer.offer.length) {
+    const offersChoose = getCurrentOffer.offer.filter((obj) => offerChoose.includes(obj.id));
+    offers = offersChoose.map(createOfferMarkup).join('');
+
+    return offers;
   }
-  return offersByCurrentType.map(createOfferMarkup).join('');
 };
 
 const getDuration = (beginISO, endISO) => {
@@ -47,8 +50,14 @@ const getDuration = (beginISO, endISO) => {
   return resultArray.join(' ');
 };
 
-const creatWaypoint = (waypoint) => {
-  const { basePrice: price, dateStart: ISOFrom, dateEnd: ISOTo, destination, isFavorite, type } = waypoint;
+const getDestination = (id) => {
+  const allDestination = destinationCreateAll();
+  const getCurrentDestination = allDestination.find((element) => element.id === id);
+  return getCurrentDestination;
+};
+
+const createWaypoint = (waypoint) => {
+  const { basePrice: price, dateStart: ISOFrom, dateEnd: ISOTo, destination: idDestination, isFavorite, type, offers: offersChoose } = waypoint;
   const dayStart = dayjs(ISOFrom).format('MMM D');
   const dateStart = dayjs(ISOFrom).format('YYYY-MM-DD');
   const timeFrom = dayjs(ISOFrom).format('HH:mm');
@@ -57,7 +66,8 @@ const creatWaypoint = (waypoint) => {
   const datetimeTo = dayjs(ISOTo).format('YYYY-MM-DDTHH:mm');
   const duration = getDuration(ISOFrom, ISOTo);
   const isFavoriteClass = isFavorite ? ' event__favorite-btn--active' : '';
-  const offersmarkup = createOffers(type, EVENTTYPES);
+  const destination = getDestination(idDestination);
+  const offers = getOffersChoose(type, offersChoose);
 
   return `<li class="trip-events__item">
 <div class="event">
@@ -65,7 +75,7 @@ const creatWaypoint = (waypoint) => {
   <div class="event__type">
     <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
   </div>
-  <h3 class="event__title">${type} ${destination.name}</h3>
+  <h3 class="event__title">${type} -- ${destination.name}</h3>
   <div class="event__schedule">
     <p class="event__time">
       <time class="event__start-time" datetime="${datetimeFrom}">${timeFrom}</time>
@@ -79,7 +89,7 @@ const creatWaypoint = (waypoint) => {
   </p>
   <h4 class="visually-hidden">Offers:</h4>
   <ul class="event__selected-offers">
-        ${offersmarkup}
+  ${offers}
   </ul>
   <button class="event__favorite-btn ${isFavoriteClass}" type="button">
     <span class="visually-hidden">Add to favorite</span>
@@ -100,7 +110,7 @@ export default class Waypoint {
   }
 
   getTemplate() {
-    return creatWaypoint(this.waypoint);
+    return createWaypoint(this.waypoint);
   }
 
   getElement() {

@@ -1,4 +1,5 @@
 import { createElement } from '../render.js';
+import { destinationCreateAll } from '../mock/destination.js';
 
 const createPhoto = (photo) => `<img class="event__photo" src="${photo.src}" alt="Event photo">`;
 
@@ -10,9 +11,12 @@ const createPhotoList = (photos) => {
   return photoList.map(createPhoto).join('');
 };
 
-const creatWaypointForm = (waypointOne) => {
-  const { destination } = waypointOne;
-  const photoItems = createPhotoList(destination.pictures);
+const createWaypointForm = (waypoint) => {
+  const { destination } = waypoint;
+  const getDestinationAll = destinationCreateAll();
+  const getDestinationCurrent = getDestinationAll.find((element) => element.id === destination);
+  const photoItems = createPhotoList(getDestinationCurrent.pictures);
+
   return `<li class="trip-events__item">
 <form class="event event--edit" action="#" method="post">
   <header class="event__header">
@@ -159,8 +163,8 @@ const creatWaypointForm = (waypointOne) => {
     </section>
 
     <section class="event__section  event__section--destination">
-      <h3 class="event__section-title  event__section-title--destination">${destination.name}</h3>
-      <p class="event__destination-description">${destination.description}</p>
+      <h3 class="event__section-title  event__section-title--destination">${getDestinationCurrent.name}</h3>
+      <p class="event__destination-description">${getDestinationCurrent.description}</p>
 
       <div class="event__photos-container">
         <div class="event__photos-tape">
@@ -174,12 +178,12 @@ const creatWaypointForm = (waypointOne) => {
 };
 
 export default class WaypointForm {
-  constructor({ waypointOne }) {
-    this.waypointOne = waypointOne;
+  constructor({ waypoint }) {
+    this.waypoint = waypoint;
   }
 
   getTemplate() {
-    return creatWaypointForm(this.waypointOne);
+    return createWaypointForm(this.waypoint);
   }
 
   getElement() {

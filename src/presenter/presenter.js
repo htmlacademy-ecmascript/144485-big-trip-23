@@ -40,13 +40,13 @@ export default class Presenter {
 
   renderWaypointForm() {
     const tripEventsListElement = this.pageMainElement.querySelector('.trip-events__list');
-    render(new WaypointForm({ waypointOne: this.pointsModelAll[0] }), tripEventsListElement, RenderPosition.AFTERBEGIN);
+    render(new WaypointForm({ waypoint: this.pointsModelAll[0] }), tripEventsListElement, RenderPosition.AFTERBEGIN);
   }
 
   renderWaypoint() {
     const tripEventsListElement = this.pageMainElement.querySelector('.trip-events__list');
-    for (let i = 0; i <= this.pointsModelAll.length; i++) {
-      render(new Waypoint({ waypoint: this.pointsModelAll[i] }), tripEventsListElement);
+    for (const point of this.pointsModelAll) {
+      render(new Waypoint({ waypoint: point }), tripEventsListElement);
     }
   }
 

@@ -1,11 +1,11 @@
-import { generateTripEvent } from '../mock/trip-event.js';
-
-const EVENT_COUNT = 3;
+import { generateTripEventArray } from '../mock/trip-event.js';
 
 export default class PointsModel {
-  event = Array.from({ length: EVENT_COUNT }, generateTripEvent);
+  constructor() {
+    this.tripEventAll = generateTripEventArray;
+  }
 
   getEvent() {
-    return this.event;
+    return this.tripEventAll;
   }
 }
