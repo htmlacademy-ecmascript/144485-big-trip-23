@@ -1,8 +1,8 @@
-import { generateTripEventArray } from '../mock/trip-event.js';
+import { MOCKED_EVENTS } from '../mock/trip-event.js';
 
 export default class PointsModel {
   constructor() {
-    this.tripEventAll = generateTripEventArray;
+    this.tripEventAll = MOCKED_EVENTS;
   }
 
   getEvent() {

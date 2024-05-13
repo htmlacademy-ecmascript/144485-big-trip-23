@@ -1,4 +1,4 @@
-import { getRandomInt, createId, getRandomArrayElement } from '../util.js';
+import { getRandomInt, getRandomArrayElement } from '../util.js';
 
 
 const CITIES = ['Amsterdam', 'Chamonix', 'Geneva', 'Paris', 'Milano'];
@@ -11,10 +11,9 @@ const createPicture = (item) => ({
   description: `${item} Lorem ipsum dolor sit amet, consectetur adipiscing elit.`
 });
 
-const destinationId = createId();
 
 const destination = CITIES.map((item) => ({
-  id: `${destinationId()}`,
+  id: crypto.randomUUID(),
   name: item,
   description: createDescription(),
   pictures: Array.from({ length: getRandomInt(8) }, createPicture)

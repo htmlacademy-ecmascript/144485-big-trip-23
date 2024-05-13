@@ -68,12 +68,13 @@ const createWaypoint = (waypoint) => {
   const isFavoriteClass = isFavorite ? ' event__favorite-btn--active' : '';
   const destination = getDestination(idDestination);
   const offers = getOffersChoose(type, offersChoose);
+  const typePicture = type.toLowerCase();
 
   return `<li class="trip-events__item">
 <div class="event">
   <time class="event__date" datetime="${dateStart}">${dayStart}</time>
   <div class="event__type">
-    <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
+    <img class="event__type-icon" width="42" height="42" src="img/icons/${typePicture}.png" alt="Event type icon">
   </div>
   <h3 class="event__title">${type} -- ${destination.name}</h3>
   <div class="event__schedule">
