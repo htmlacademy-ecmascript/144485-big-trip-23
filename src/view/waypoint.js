@@ -57,7 +57,15 @@ const getDestination = (id) => {
 };
 
 const createWaypoint = (waypoint) => {
-  const { basePrice: price, dateStart: ISOFrom, dateEnd: ISOTo, destination: idDestination, isFavorite, type, offers: offersChoose } = waypoint;
+  const {
+    basePrice: price,
+    dateStart: ISOFrom,
+    dateEnd: ISOTo,
+    destination: idDestination,
+    isFavorite,
+    type,
+    offers: offersChoose,
+  } = waypoint;
   const dayStart = dayjs(ISOFrom).format('MMM D');
   const dateStart = dayjs(ISOFrom).format('YYYY-MM-DD');
   const timeFrom = dayjs(ISOFrom).format('HH:mm');

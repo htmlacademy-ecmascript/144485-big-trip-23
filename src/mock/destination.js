@@ -1,6 +1,5 @@
 import { getRandomInt, getRandomArrayElement } from '../util.js';
 
-
 const CITIES = ['Amsterdam', 'Chamonix', 'Geneva', 'Paris', 'Milano'];
 
 const createDescription = () =>
@@ -8,15 +7,14 @@ const createDescription = () =>
 
 const createPicture = (item) => ({
   src: `https://loremflickr.com/248/152?${getRandomInt(5)}`,
-  description: `${item} Lorem ipsum dolor sit amet, consectetur adipiscing elit.`
+  description: `${item} Lorem ipsum dolor sit amet, consectetur adipiscing elit.`,
 });
-
 
 const destination = CITIES.map((item) => ({
   id: crypto.randomUUID(),
   name: item,
   description: createDescription(),
-  pictures: Array.from({ length: getRandomInt(8) }, createPicture)
+  pictures: Array.from({ length: getRandomInt(8) }, createPicture),
 }));
 
 export const destinationCreate = () => getRandomArrayElement(destination);

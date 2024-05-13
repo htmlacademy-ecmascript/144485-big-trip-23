@@ -12,13 +12,14 @@
 }
 
 .ui-blocker::before {
-  content: "";
+  content: '';
   display: block;
   border-radius: 50%;
-  border: 6px solid #4285F4;
+  border: 6px solid #4285f4;
   box-sizing: border-box;
-  animation: sweep 1s linear alternate infinite,
-             rotate 0.8s linear infinite;
+  animation:
+    sweep 1s linear alternate infinite,
+    rotate 0.8s linear infinite;
   width: 65px;
   height: 65px;
 }

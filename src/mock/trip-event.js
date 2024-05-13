@@ -27,5 +27,4 @@ const generateTripEvent = () => {
 
 const MOCKED_EVENTS = Array.from({ length: EVENT_COUNT }, generateTripEvent);
 
-
 export { MOCKED_EVENTS };
