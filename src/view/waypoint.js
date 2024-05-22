@@ -1,6 +1,7 @@
-import { createElement } from '../render.js';
-import { destinationCreateAll } from '../mock/destination.js';
+import AbstractView from '../framework/view/abstract-view.js';
+// import { destinationCreateAll } from '../mock/destination.js';
 import { createRandomOffers } from '../mock/offer-mock.js';
+import { destinationCreateAll } from '../mock/destination.js';
 import dayjs from 'dayjs';
 
 const createOfferMarkup = (offer) => `<li class="event__offer">
@@ -113,24 +114,20 @@ const createWaypoint = (waypoint) => {
 </li>`;
 };
 
-export default class Waypoint {
-  constructor({ waypoint }) {
-    this.waypoint = waypoint;
+export default class Waypoint extends AbstractView {
+  #waypoint = null;
+  #onClickButton = null;
+  #rollupButton;
+  constructor({ waypoint, onClickButton }) {
+    super();
+    this.#waypoint = waypoint;
+    this.#onClickButton = onClickButton;
+    this.#rollupButton = this.element.querySelector('.event__rollup-btn');
+    this.#rollupButton.addEventListener('click', this.#onClickButton);
   }
 
-  getTemplate() {
-    return createWaypoint(this.waypoint);
+  get template() {
+    return createWaypoint(this.#waypoint);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
 }
