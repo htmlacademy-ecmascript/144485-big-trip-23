@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 const createId = () => {
   let count = 0;
   return function () {
@@ -15,4 +17,26 @@ const getRandomInteger = (a = 0, b = 1) => {
 
 const getRandomArrayElement = (elements) => elements[getRandomInteger(0, elements.length - 1)];
 
-export { createId, getRandomInteger, getRandomArrayElement };
+const getRandomInt = (max) => Math.round(Math.random() * max);
+
+const generateDates = () => {
+  const maxGap = 14;
+
+  const startDate = dayjs()
+    .add(getRandomInteger(-maxGap, maxGap), 'day')
+    .add(getRandomInteger(-maxGap, maxGap), 'hour')
+    .add(getRandomInteger(-maxGap, maxGap), 'minute');
+
+  const endDay = startDate
+    .clone()
+    .add(getRandomInteger(0, maxGap), 'day')
+    .add(getRandomInteger(0, 59), 'hour')
+    .add(getRandomInteger(0, 59), 'minute');
+
+  return {
+    dateFrom: startDate.toISOString(),
+    dateTo: endDay.toISOString(),
+  };
+};
+
+export { createId, getRandomInteger, getRandomArrayElement, getRandomInt, generateDates };

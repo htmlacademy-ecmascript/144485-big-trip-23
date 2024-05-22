@@ -1,6 +1,6 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
-const creatSortPanel = () =>
+const createSortPanel = () =>
   `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
 <div class="trip-sort__item  trip-sort__item--day">
   <input id="sort-day" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-day" checked="">
@@ -28,20 +28,12 @@ const creatSortPanel = () =>
 </div>
 </form>`;
 
-export default class SortPanel {
-  getTemplate() {
-    return creatSortPanel();
+export default class SortPanel extends AbstractView {
+  constructor() {
+    super();
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
+  get template() {
+    return createSortPanel();
   }
 }

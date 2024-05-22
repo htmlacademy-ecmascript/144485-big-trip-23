@@ -1,25 +1,29 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
+import { destinationCreateAll } from '../mock/destination.js';
 
 const createPhoto = (photo) => `<img class="event__photo" src="${photo.src}" alt="Event photo">`;
+const createCityItem = (city) => `<option value="${city}"></option>`;
 
-const createPhotoList = (photos) => {
-  const photoList = [];
-  for (let i = 0; i < photos.length; i++) {
-    photoList.push(photos[i]);
-  }
-  return photoList.map(createPhoto).join('');
+const createCityList = (arr) => {
+  const cities = arr.map((element) => element.name);
+  return cities.map(createCityItem).join(' ');
 };
+const createPhotoList = (arr) => arr.map(createPhoto).join('');
 
-const creatWaypointForm = (waypointOne) => {
-  const { destination } = waypointOne;
-  const photoItems = createPhotoList(destination.pictures);
+const createWaypointForm = (waypoint) => {
+  const { destination, type, id } = waypoint;
+  const getDestinationAll = destinationCreateAll();
+  const getDestinationCurrent = getDestinationAll.find((element) => element.id === destination);
+  const photoItems = createPhotoList(getDestinationCurrent.pictures);
+  const cityList = createCityList(getDestinationAll);
+
   return `<li class="trip-events__item">
 <form class="event event--edit" action="#" method="post">
   <header class="event__header">
     <div class="event__type-wrapper">
       <label class="event__type  event__type-btn" for="event-type-toggle-1">
         <span class="visually-hidden">Choose event type</span>
-        <img class="event__type-icon" width="17" height="17" src="img/icons/flight.png" alt="Event type icon">
+        <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
       </label>
       <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -54,7 +58,7 @@ const creatWaypointForm = (waypointOne) => {
 
           <div class="event__type-item">
             <input id="event-type-flight-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="flight" checked="">
-            <label class="event__type-label  event__type-label--flight" for="event-type-flight-1">Flight</label>
+            <label class="event__type-label  event__type-label--flight" for="event-type-flight-1">${type}</label>
           </div>
 
           <div class="event__type-item">
@@ -77,13 +81,12 @@ const creatWaypointForm = (waypointOne) => {
 
     <div class="event__field-group  event__field-group--destination">
       <label class="event__label  event__type-output" for="event-destination-1">
-        Flight
+        ${type}
       </label>
-      <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="Geneva" list="destination-list-1">
-      <datalist id="destination-list-1">
-        <option value="Amsterdam"></option>
-        <option value="Geneva"></option>
-        <option value="Chamonix"></option>
+      <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination"
+      value="${getDestinationCurrent.name}" list="destination-list-${id}">
+      <datalist id="destination-list-${id}">
+      ${cityList}
       </datalist>
     </div>
 
@@ -159,8 +162,8 @@ const creatWaypointForm = (waypointOne) => {
     </section>
 
     <section class="event__section  event__section--destination">
-      <h3 class="event__section-title  event__section-title--destination">${destination.name}</h3>
-      <p class="event__destination-description">${destination.description}</p>
+      <h3 class="event__section-title  event__section-title--destination">${getDestinationCurrent.name}</h3>
+      <p class="event__destination-description">${getDestinationCurrent.description}</p>
 
       <div class="event__photos-container">
         <div class="event__photos-tape">
@@ -173,24 +176,20 @@ const creatWaypointForm = (waypointOne) => {
 </li>`;
 };
 
-export default class WaypointForm {
-  constructor({ waypointOne }) {
-    this.waypointOne = waypointOne;
+export default class WaypointEdit extends AbstractView {
+  #waypoint = null;
+  #onClickButtonCansel = null;
+  #buttonCansel = null;
+  constructor({ waypoint, onClickButtonCansel }) {
+    super();
+    this.#waypoint = waypoint;
+    this.#onClickButtonCansel = onClickButtonCansel;
+    this.#buttonCansel = this.element.querySelector('.event__reset-btn');
+    this.#buttonCansel.addEventListener('click', this.#onClickButtonCansel);
   }
 
-  getTemplate() {
-    return creatWaypointForm(this.waypointOne);
+  get template() {
+    return createWaypointForm(this.#waypoint);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
 }

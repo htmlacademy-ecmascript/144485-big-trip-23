@@ -1,44 +1,30 @@
-import dayjs from 'dayjs';
-import { EVENTTYPES } from './event-types.js';
-import { LOCATIONS } from './locations.js';
-import { createId, getRandomInteger, getRandomArrayElement } from '../util.js';
+import { createRandomOffers } from './offer-mock.js';
+import { destinationCreate } from './destination.js';
+import { createId, getRandomInteger, getRandomInt, generateDates, getRandomArrayElement } from '../util.js';
+import { EVENT_TYPES } from './variablies.js';
 
-const generateDates = () => {
-  const maxGap = 14;
-
-  const startDate = dayjs()
-    .add(getRandomInteger(-maxGap, maxGap), 'day')
-    .add(getRandomInteger(-maxGap, maxGap), 'hour')
-    .add(getRandomInteger(-maxGap, maxGap), 'minute');
-
-  const endDay = startDate
-    .clone()
-    .add(getRandomInteger(0, maxGap), 'day')
-    .add(getRandomInteger(0, 59), 'hour')
-    .add(getRandomInteger(0, 59), 'minute');
-
-  return {
-    dateFrom: startDate.toISOString(),
-    dateTo: endDay.toISOString(),
-  };
-};
+const idTripEvent = createId();
+const EVENT_COUNT = 3;
 
 const generateTripEvent = () => {
   const dates = generateDates();
-  const eventRandom = getRandomArrayElement(EVENTTYPES);
-  const locationsRandom = getRandomArrayElement(LOCATIONS);
-  const generatePrice = () => getRandomInteger(1, 100) * 10;
-  const idTripEvent = createId();
+  const { id: destinationId } = destinationCreate();
+  const typeRandom = getRandomArrayElement(EVENT_TYPES);
+  const randomOffers = createRandomOffers();
+  const getOffers = randomOffers.find((element) => element.type === typeRandom);
+  const getOffersId = getOffers.offer.map((item) => item.id).slice(0, 3);
 
   return {
     id: idTripEvent(),
-    basePrice: generatePrice(),
+    basePrice: getRandomInt(100),
     ...dates,
-    destination: locationsRandom,
+    destination: destinationId,
     isFavorite: Boolean(getRandomInteger(0, 1)),
-    events: eventRandom,
-    type: eventRandom.type,
+    offers: getOffersId,
+    type: typeRandom,
   };
 };
 
-export { generateTripEvent };
+const MOCKED_EVENTS = Array.from({ length: EVENT_COUNT }, generateTripEvent);
+
+export { MOCKED_EVENTS };
