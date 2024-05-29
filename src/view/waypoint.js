@@ -1,8 +1,7 @@
 import AbstractView from '../framework/view/abstract-view.js';
-// import { destinationCreateAll } from '../mock/destination.js';
-import { createRandomOffers } from '../mock/offer-mock.js';
-import { destinationCreateAll } from '../mock/destination.js';
+import { getDuration } from '../utils.js/util.js';
 import dayjs from 'dayjs';
+
 
 const createOfferMarkup = (offer) => `<li class="event__offer">
 <span class="event__offer-title">${offer.title}</span>
@@ -10,62 +9,19 @@ const createOfferMarkup = (offer) => `<li class="event__offer">
 <span class="event__offer-price">${offer.price}</span>
 </li>`;
 
-const getOffersChoose = (type, offerChoose) => {
-  const getOffersAll = createRandomOffers();
-  const getCurrentOffer = getOffersAll.find((element) => element.type === type);
-  let offers;
-  if (getCurrentOffer && getCurrentOffer.offer && getCurrentOffer.offer.length) {
-    const offersChoose = getCurrentOffer.offer.filter((obj) => offerChoose.includes(obj.id));
-    offers = offersChoose.map(createOfferMarkup).join('');
-
-    return offers;
-  }
+const getOffersChoose = (offerCurrent) => {
+  const getCurrentOffer = offerCurrent.offer;
+  return getCurrentOffer.map(createOfferMarkup).join('');
 };
 
-const getDuration = (beginISO, endISO) => {
-  const getTimeDiff = () => {
-    const startDate = dayjs(beginISO).toDate();
-    const endDate = dayjs(endISO).toDate();
-    const resultDict = new Date(endDate - startDate);
 
-    return {
-      days: resultDict.getUTCDate() - 1,
-      hours: resultDict.getUTCHours(),
-      minutes: resultDict.getUTCMinutes(),
-    };
-  };
-
-  const timeDifference = getTimeDiff();
-  const resultArray = [];
-
-  if (timeDifference.days !== 0) {
-    resultArray[0] = `${String(timeDifference.days).padStart(2, '0')}D`;
-  }
-  if (timeDifference.hours !== 0) {
-    resultArray[1] = `${String(timeDifference.hours).padStart(2, '0')}H`;
-  }
-  if (timeDifference.minutes !== 0) {
-    resultArray[2] = `${String(timeDifference.minutes).padStart(2, '0')}M`;
-  }
-
-  return resultArray.join(' ');
-};
-
-const getDestination = (id) => {
-  const allDestination = destinationCreateAll();
-  const getCurrentDestination = allDestination.find((element) => element.id === id);
-  return getCurrentDestination;
-};
-
-const createWaypoint = (waypoint) => {
+const createWaypoint = (waypoint, destinationCurrent, offerCurrent) => {
   const {
     basePrice: price,
-    dateStart: ISOFrom,
-    dateEnd: ISOTo,
-    destination: idDestination,
+    dateFrom: ISOFrom,
+    dateTo: ISOTo,
     isFavorite,
     type,
-    offers: offersChoose,
   } = waypoint;
   const dayStart = dayjs(ISOFrom).format('MMM D');
   const dateStart = dayjs(ISOFrom).format('YYYY-MM-DD');
@@ -75,9 +31,9 @@ const createWaypoint = (waypoint) => {
   const datetimeTo = dayjs(ISOTo).format('YYYY-MM-DDTHH:mm');
   const duration = getDuration(ISOFrom, ISOTo);
   const isFavoriteClass = isFavorite ? ' event__favorite-btn--active' : '';
-  const destination = getDestination(idDestination);
-  const offers = getOffersChoose(type, offersChoose);
+  const offers = getOffersChoose(offerCurrent);
   const typePicture = type.toLowerCase();
+
 
   return `<li class="trip-events__item">
 <div class="event">
@@ -85,7 +41,7 @@ const createWaypoint = (waypoint) => {
   <div class="event__type">
     <img class="event__type-icon" width="42" height="42" src="img/icons/${typePicture}.png" alt="Event type icon">
   </div>
-  <h3 class="event__title">${type} -- ${destination.name}</h3>
+  <h3 class="event__title">${type} -- ${destinationCurrent.name}</h3>
   <div class="event__schedule">
     <p class="event__time">
       <time class="event__start-time" datetime="${datetimeFrom}">${timeFrom}</time>
@@ -116,18 +72,40 @@ const createWaypoint = (waypoint) => {
 
 export default class Waypoint extends AbstractView {
   #waypoint = null;
-  #onClickButton = null;
-  #rollupButton;
-  constructor({ waypoint, onClickButton }) {
+  #destinationsModel = null;
+  #onClickButtonRollup = null;
+  #onFavoriteClick = null;
+  #rollupButton = null;
+  #favoriteButton = null;
+  #destinationCurrent;
+  #offerCurrent;
+
+  constructor({ waypoint, onClickButtonRollup, destinationsModel, onFavoriteClick, offerCurrent }) {
     super();
     this.#waypoint = waypoint;
-    this.#onClickButton = onClickButton;
+    this.#offerCurrent = offerCurrent;
+    this.#onClickButtonRollup = onClickButtonRollup;
+    this.#destinationsModel = destinationsModel;
+    this.#destinationCurrent = this.#destinationsModel.getDestinationId(this.#waypoint?.destination);
+    this.#onFavoriteClick = onFavoriteClick;
     this.#rollupButton = this.element.querySelector('.event__rollup-btn');
-    this.#rollupButton.addEventListener('click', this.#onClickButton);
+    this.#rollupButton.addEventListener('click', this.#onClickButtonRollupHandler);
+    this.#favoriteButton = this.element.querySelector('.event__favorite-btn');
+    this.#favoriteButton.addEventListener('click', this.#onFavoriteClickHandler);
   }
 
   get template() {
-    return createWaypoint(this.#waypoint);
+    return createWaypoint(this.#waypoint, this.#destinationCurrent, this.#offerCurrent);
   }
+
+  #onFavoriteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#onFavoriteClick();
+  };
+
+  #onClickButtonRollupHandler = (evt) => {
+    evt.preventDefault();
+    this.#onClickButtonRollup();
+  };
 
 }

@@ -1,9 +1,8 @@
 import { createRandomOffers } from './offer-mock.js';
 import { destinationCreate } from './destination.js';
-import { createId, getRandomInteger, getRandomInt, generateDates, getRandomArrayElement } from '../util.js';
+import { getRandomInt, generateDates, getRandomArrayElement } from '../utils.js/util.js';
 import { EVENT_TYPES } from './variablies.js';
 
-const idTripEvent = createId();
 const EVENT_COUNT = 3;
 
 const generateTripEvent = () => {
@@ -12,14 +11,14 @@ const generateTripEvent = () => {
   const typeRandom = getRandomArrayElement(EVENT_TYPES);
   const randomOffers = createRandomOffers();
   const getOffers = randomOffers.find((element) => element.type === typeRandom);
-  const getOffersId = getOffers.offer.map((item) => item.id).slice(0, 3);
+  const getOffersId = getOffers.offer.map((item) => item.id);
 
   return {
-    id: idTripEvent(),
+    id: crypto.randomUUID(),
     basePrice: getRandomInt(100),
     ...dates,
     destination: destinationId,
-    isFavorite: Boolean(getRandomInteger(0, 1)),
+    isFavorite: false,
     offers: getOffersId,
     type: typeRandom,
   };

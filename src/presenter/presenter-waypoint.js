@@ -1,62 +1,129 @@
-import { render, replace } from '../framework/render.js';
+import { render, replace, remove } from '../framework/render.js';
 import Waypoint from '../view/waypoint.js';
 import WaypointEdit from '../view/waypoint-edit.js';
 
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING'
+};
+
 export default class PresenterWaypoint {
-  #pointsModelAll = null;
-  #destinationAll = null;
-  #pageMainElement;
-  constructor({ pointsModel }) {
-    this.#pointsModelAll = pointsModel.event;
-    this.#destinationAll = pointsModel.destinationAll;
-    this.#pageMainElement = document.querySelector('.page-main');
+  #destinationsModel = null;
+  #offersModel = null;
+  #destinationsModelAll = [];
+  #pointListContainer = null;
+  #eventView = null;
+  #eventEditView = null;
+  #point = null;
+  #onPointChange = null;
+  #mode = Mode.DEFAULT;
+  #onModeChange = null;
 
+  constructor({ pointListContainer, destinationsModel, offersModel, onPointChange, onModeChange }) {
+    this.#pointListContainer = pointListContainer;
+    this.#destinationsModel = destinationsModel;
+    this.#destinationsModelAll = [...this.#destinationsModel.destinationAll];
+    this.#offersModel = offersModel;
+    this.#onPointChange = onPointChange;
+    this.#onModeChange = onModeChange;
   }
 
-  renderWaypoints() {
-    this.#pointsModelAll.forEach((element) => this.renderWaypoint(element));
-  }
+  init(point) {
+    this.#point = point;
 
-  renderWaypoint(element) {
-    const tripEventsListElement = this.#pageMainElement.querySelector('.trip-events__list');
-    const onEscKeydown = (evt) => {
-      if (evt.key === 'Escape') {
-        evt.preventDefault();
-        switchToViewMode();
-      }
-    };
-    const onClickButton = () => switchToEditMode();
-    const onClickButtonCansel = () => switchToViewMode();
+    const prevEventViewComponent = this.#eventView;
+    const prevEventEditViewComponent = this.#eventEditView;
 
-    const eventView = new Waypoint({
-      waypoint: element,
-      onClickButton: onClickButton,
 
+    this.#eventView = new Waypoint({
+      waypoint: point,
+      onClickButtonRollup: this.#onClickButtonRollup,
+      destinationsModel: this.#destinationsModel,
+      onFavoriteClick: this.#onFavoriteClick,
+      offerCurrent: this.#offersModel.getCurrentOffer(point.type)
 
     });
 
-    const eventEditView = new WaypointEdit({
-      waypoint: element,
-      onClickButtonCansel: onClickButtonCansel,
+    this.#eventEditView = new WaypointEdit({
+      waypoint: point,
+      onEditFormRollupButtonClick: this.#onEditFormRollupButtonClick,
+      destinationsModel: this.#destinationsModel,
+      onEditFormSave: this.#onEditFormSave,
+      offersModel: this.#offersModel
 
     });
 
-    function switchToEditMode() {
-      replace(eventEditView, eventView);
-      document.addEventListener('keydown', onEscKeydown);
+
+    if (prevEventViewComponent === null | prevEventEditViewComponent === null) {
+      render(this.#eventView, this.#pointListContainer);
+      return;
     }
 
-    function switchToViewMode() {
-      replace(eventView, eventEditView);
-      document.removeEventListener('keydown', onEscKeydown);
-
+    if (this.#mode === Mode.DEFAULT) {
+      replace(this.#eventView, prevEventViewComponent);
     }
 
-    render(eventView, tripEventsListElement);
+    if (this.#mode === Mode.EDITING) {
+      replace(this.#eventEditView, prevEventEditViewComponent);
+    }
+
+    remove(prevEventViewComponent);
+    remove(prevEventEditViewComponent);
   }
 
 
-  init() {
-    this.renderWaypoints();
+  destroy() {
+    remove(this.#eventView);
+    remove(this.#eventEditView);
   }
+
+  resetView() {
+    if (this.#mode !== Mode.DEFAULT) {
+      this.#eventEditView.reset(this.#point);
+      this.#replaceFormToPoint();
+    }
+  }
+
+  #escapeKeydownHandler = (evt) => {
+    if (evt.key === 'Escape') {
+      evt.preventDefault();
+      this.#eventEditView.reset(this.#point);
+      this.#replaceFormToPoint();
+    }
+  };
+
+  #replacePointToForm() {
+    replace(this.#eventEditView, this.#eventView);
+    document.addEventListener('keydown', this.#escapeKeydownHandler);
+    this.#onModeChange();
+    this.#mode = Mode.EDITING;
+  }
+
+  #replaceFormToPoint() {
+    replace(this.#eventView, this.#eventEditView);
+    document.removeEventListener('keydown', this.#escapeKeydownHandler);
+    this.#mode = Mode.DEFAULT;
+
+  }
+
+  #onClickButtonRollup = () => {
+    this.#replacePointToForm();
+  };
+
+  #onEditFormRollupButtonClick = () => {
+    this.#eventEditView.reset(this.#point);
+    this.#replaceFormToPoint();
+  };
+
+  #onEditFormSave = () => {
+    this.#replaceFormToPoint();
+  };
+
+  #onFavoriteClick = () => {
+    this.#onPointChange({ ...this.#point, isFavorite: !this.#point.isFavorite });
+  };
+
+
 }
+
+
