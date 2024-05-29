@@ -49,8 +49,5 @@ export default class SortPanel extends AbstractView {
     if (evt.target.dataset.sortType) {
       this.#onSortTypeChange(evt.target.dataset.sortType);
     }
-
   };
-
 }
-

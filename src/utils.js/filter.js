@@ -1,27 +1,21 @@
-import dayjs from 'dayjs';
-import isSameOrAfter from 'dayjs/plugin/IsSameOrAfter.js';
-import isSameOrBefore from 'dayjs/plugin/IsSameOrBefore.js';
+import { appDay } from './day.js';
 
-dayjs.extend(isSameOrAfter);
-dayjs.extend(isSameOrBefore);
-
-
-const isFutureEvent = (dateFrom) => dayjs(dateFrom).isAfter(dayjs());
-const isPresentEvent = (dateFrom, dateTo) => dayjs(dateFrom).isSameOrBefore(dayjs()) && dayjs(dateTo).isSameOrAfter(dayjs());
-const isPastEvent = (dateTo) => dayjs(dateTo).isSameOrBefore(dayjs());
+const isFutureEvent = (dateFrom) => appDay(dateFrom).isAfter(appDay());
+const isPresentEvent = (dateFrom, dateTo) => appDay(dateFrom).isSameOrBefore(appDay()) && appDay(dateTo).isSameOrAfter(appDay());
+const isPastEvent = (dateTo) => appDay(dateTo).isSameOrBefore(appDay());
 
 const FilterType = {
   EVERYTHING: 'everything',
   FUTURE: 'future',
   PRESENT: 'present',
-  PAST: 'past'
+  PAST: 'past',
 };
 
 const filter = {
   [FilterType.EVERYTHING]: (points) => points,
   [FilterType.FUTURE]: (points) => points.filter((point) => isFutureEvent(point.dateFrom)),
   [FilterType.PRESENT]: (points) => points.filter((point) => isPresentEvent(point.dateFrom, point.dateTo)),
-  [FilterType.PAST]: (points) => points.filter((point) => isPastEvent(point.dateTo))
+  [FilterType.PAST]: (points) => points.filter((point) => isPastEvent(point.dateTo)),
 };
 
 export const TripMessagesEmpty = {
@@ -30,6 +24,5 @@ export const TripMessagesEmpty = {
   [FilterType.PRESENT]: 'There are no present events now',
   [FilterType.PAST]: 'There are no past events now',
 };
-
 
 export { filter };

@@ -22,7 +22,6 @@ export default class Presenter {
   #currentSortType = null;
   #sourcedPoints = [];
 
-
   constructor({ pointsModel, destinationsModel, offersModel }) {
     this.#pointsModel = pointsModel;
     this.#pointsModelAll = [...this.#pointsModel.event];
@@ -54,7 +53,6 @@ export default class Presenter {
       default:
         this.#pointsModelAll();
     }
-
   };
 
   #onSortTypeChange = (sortType) => {
@@ -68,7 +66,7 @@ export default class Presenter {
 
   #renderSortPanel() {
     this.#sortPanel = new SortPanel({
-      onSortTypeChange: this.#onSortTypeChange
+      onSortTypeChange: this.#onSortTypeChange,
     });
     render(this.#sortPanel, this.tripEventsElement);
   }
@@ -96,7 +94,7 @@ export default class Presenter {
       destinationsModel: this.#destinationsModel,
       offersModel: this.offersModel,
       onPointChange: this.#onPointChange,
-      onModeChange: this.#onModeChange
+      onModeChange: this.#onModeChange,
     });
     pointPresenter.init(point);
     this.#pointPresenterMap.set(point.id, pointPresenter);
@@ -112,7 +110,6 @@ export default class Presenter {
     }
   }
 
-
   #onPointChange = (updatePoint) => {
     this.#pointsModelAll = updateDate(this.#pointsModelAll, updatePoint);
     this.#sourcedPoints = updateDate(this.#sourcedPoints, updatePoint);
@@ -123,13 +120,10 @@ export default class Presenter {
     this.#pointPresenterMap.forEach((presenter) => presenter.resetView());
   };
 
-
   init() {
     this.#renderCreationform();
     this.#renderSortPanel();
     this.#renderTripInfo();
     this.#renderWaypointList();
   }
-
-
 }

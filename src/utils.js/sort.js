@@ -1,5 +1,4 @@
-
-import dayjs from 'dayjs';
+import { appDay } from './day.js';
 
 export const SORT_TYPE = {
   DAY: 'day',
@@ -7,9 +6,8 @@ export const SORT_TYPE = {
   PRICE: 'price',
 };
 
+export const sortByDay = (pointA, pointB) => appDay(pointA.dateTo).diff(appDay(pointB.dateFrom));
 
-export const sortByDay = (pointA, pointB) => dayjs(pointA.dateTo).diff(dayjs(pointB.dateFrom));
-
-export const sortByTime = (pointA, pointB) => dayjs(pointB.dateTo).diff(pointB.dateFrom) - dayjs(pointA.dateTo).diff(pointA.dateFrom);
+export const sortByTime = (pointA, pointB) => appDay(pointB.dateTo).diff(pointB.dateFrom) - appDay(pointA.dateTo).diff(pointA.dateFrom);
 
 export const sortByPrice = (pointA, pointB) => pointB.basePrice - pointA.basePrice;

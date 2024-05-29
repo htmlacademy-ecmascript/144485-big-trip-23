@@ -4,7 +4,7 @@ import WaypointEdit from '../view/waypoint-edit.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
-  EDITING: 'EDITING'
+  EDITING: 'EDITING',
 };
 
 export default class PresenterWaypoint {
@@ -34,14 +34,12 @@ export default class PresenterWaypoint {
     const prevEventViewComponent = this.#eventView;
     const prevEventEditViewComponent = this.#eventEditView;
 
-
     this.#eventView = new Waypoint({
       waypoint: point,
       onClickButtonRollup: this.#onClickButtonRollup,
       destinationsModel: this.#destinationsModel,
       onFavoriteClick: this.#onFavoriteClick,
-      offerCurrent: this.#offersModel.getCurrentOffer(point.type)
-
+      offerCurrent: this.#offersModel.getCurrentOffer(point.type),
     });
 
     this.#eventEditView = new WaypointEdit({
@@ -49,12 +47,10 @@ export default class PresenterWaypoint {
       onEditFormRollupButtonClick: this.#onEditFormRollupButtonClick,
       destinationsModel: this.#destinationsModel,
       onEditFormSave: this.#onEditFormSave,
-      offersModel: this.#offersModel
-
+      offersModel: this.#offersModel,
     });
 
-
-    if (prevEventViewComponent === null | prevEventEditViewComponent === null) {
+    if ((prevEventViewComponent === null) | (prevEventEditViewComponent === null)) {
       render(this.#eventView, this.#pointListContainer);
       return;
     }
@@ -70,7 +66,6 @@ export default class PresenterWaypoint {
     remove(prevEventViewComponent);
     remove(prevEventEditViewComponent);
   }
-
 
   destroy() {
     remove(this.#eventView);
@@ -103,7 +98,6 @@ export default class PresenterWaypoint {
     replace(this.#eventView, this.#eventEditView);
     document.removeEventListener('keydown', this.#escapeKeydownHandler);
     this.#mode = Mode.DEFAULT;
-
   }
 
   #onClickButtonRollup = () => {
@@ -122,8 +116,4 @@ export default class PresenterWaypoint {
   #onFavoriteClick = () => {
     this.#onPointChange({ ...this.#point, isFavorite: !this.#point.isFavorite });
   };
-
-
 }
-
-
