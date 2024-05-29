@@ -9,6 +9,4 @@ export default class PointsModel {
   get event() {
     return this.#tripEventAll;
   }
-
-
 }
