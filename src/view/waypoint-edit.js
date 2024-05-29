@@ -132,6 +132,8 @@ export default class WaypointEdit extends AbstractStatefulView {
   #destinationCurrent = null;
   #buttonSave = null;
   #offersModelAll;
+  #datepickerFrom = null;
+  #datepickerTo = null;
   constructor({ waypoint, onEditFormRollupButtonClick, destinationsModel, offersModel }) {
 
     super();
@@ -167,6 +169,9 @@ export default class WaypointEdit extends AbstractStatefulView {
       .forEach((offer) => offer.addEventListener('change', this.#offersChangeHandler));
     this.element.querySelector('.event__input--destination')
       .addEventListener('change', this.#eventDestinationToggleHandler);
+
+    this.#setDatePickerFrom();
+    this.#setDatePickerTo();
   }
 
   #eventDestinationToggleHandler = (evt) => {
@@ -216,6 +221,56 @@ export default class WaypointEdit extends AbstractStatefulView {
     evt.preventDefault();
     this.#onEditFormRollupButtonClick();
   };
+
+  removeElement() {
+    super.removeElement();
+
+    if (this.#datepickerFrom) {
+      this.#datepickerFrom.destroy();
+      this.#datepickerFrom = null;
+    }
+
+    if (this.#datepickerTo) {
+      this.#datepickerTo.destroy();
+      this.#datepickerTo = null;
+    }
+  }
+
+  #dateFromChangeHadler = ([dateFrom]) => {
+    this.updateElement({
+      dateFrom: dateFrom
+    });
+  };
+
+  #dateToChangeHadler = ([dateTo]) => {
+    this.updateElement({
+      dateTo: dateTo
+    });
+  };
+
+  #setDatePickerFrom() {
+    this.#datepickerFrom = flatpickr(
+      this.element.querySelector('input[name=event-start-time]'),
+      {
+        dateFormat: 'j/m/y H:i',
+        defaultDate: this._state.dateFrom,
+        onChange: this.#dateFromChangeHadler,
+        enableTime: true
+      }
+    );
+  }
+
+  #setDatePickerTo() {
+    this.#datepickerTo = flatpickr(
+      this.element.querySelector('input[name=event-end-time]'),
+      {
+        dateFormat: 'j/m/y H:i',
+        defaultDate: this._state.dateTo,
+        onChange: this.#dateToChangeHadler,
+        enableTime: true
+      }
+    );
+  }
 
   static parsePointToState = (point) => ({ ...point });
   static parseStateToPoint = (state) => ({ ...state });
