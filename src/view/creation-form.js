@@ -10,5 +10,4 @@ export default class CreationForm extends AbstractView {
   get template() {
     return createEventButton();
   }
-
 }

@@ -23,7 +23,6 @@ const createFilterPanel = (filters) => {
 };
 
 export default class Filter extends AbstractView {
-
   #filters = [];
   constructor({ filters }) {
     super();

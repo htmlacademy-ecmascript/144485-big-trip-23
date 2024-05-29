@@ -1,7 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
+import { appDay } from '../utils.js/day.js';
 import { getDuration } from '../utils.js/util.js';
-import dayjs from 'dayjs';
-
 
 const createOfferMarkup = (offer) => `<li class="event__offer">
 <span class="event__offer-title">${offer.title}</span>
@@ -14,26 +13,18 @@ const getOffersChoose = (offerCurrent) => {
   return getCurrentOffer.map(createOfferMarkup).join('');
 };
 
-
 const createWaypoint = (waypoint, destinationCurrent, offerCurrent) => {
-  const {
-    basePrice: price,
-    dateFrom: ISOFrom,
-    dateTo: ISOTo,
-    isFavorite,
-    type,
-  } = waypoint;
-  const dayStart = dayjs(ISOFrom).format('MMM D');
-  const dateStart = dayjs(ISOFrom).format('YYYY-MM-DD');
-  const timeFrom = dayjs(ISOFrom).format('HH:mm');
-  const datetimeFrom = dayjs(ISOFrom).format('YYYY-MM-DDTHH:mm');
-  const timeTo = dayjs(ISOTo).format('HH:mm');
-  const datetimeTo = dayjs(ISOTo).format('YYYY-MM-DDTHH:mm');
+  const { basePrice: price, dateFrom: ISOFrom, dateTo: ISOTo, isFavorite, type } = waypoint;
+  const dayStart = appDay(ISOFrom).format('MMM D');
+  const dateStart = appDay(ISOFrom).format('YYYY-MM-DD');
+  const timeFrom = appDay(ISOFrom).format('HH:mm');
+  const datetimeFrom = appDay(ISOFrom).format('YYYY-MM-DDTHH:mm');
+  const timeTo = appDay(ISOTo).format('HH:mm');
+  const datetimeTo = appDay(ISOTo).format('YYYY-MM-DDTHH:mm');
   const duration = getDuration(ISOFrom, ISOTo);
   const isFavoriteClass = isFavorite ? ' event__favorite-btn--active' : '';
   const offers = getOffersChoose(offerCurrent);
   const typePicture = type.toLowerCase();
-
 
   return `<li class="trip-events__item">
 <div class="event">
@@ -107,5 +98,4 @@ export default class Waypoint extends AbstractView {
     evt.preventDefault();
     this.#onClickButtonRollup();
   };
-
 }

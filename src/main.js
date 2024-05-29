@@ -13,13 +13,11 @@ const destinationsModel = new DestinationsModel();
 const offersModel = new OffersModel();
 const filters = generateFilter(pointsModel.event);
 
-
 const presenter = new Presenter({
   pointsModel,
   destinationsModel,
-  offersModel
+  offersModel,
 });
-
 
 render(new Filter({ filters }), filterContainer);
 presenter.init();

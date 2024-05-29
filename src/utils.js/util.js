@@ -1,4 +1,4 @@
-import dayjs from 'dayjs';
+import { appDay } from './day.js';
 
 const getRandomInteger = (a = 0, b = 1) => {
   const lower = Math.ceil(Math.min(a, b));
@@ -14,7 +14,7 @@ const getRandomInt = (max) => Math.round(Math.random() * max);
 const generateDates = () => {
   const maxGap = 14;
 
-  const startDate = dayjs()
+  const startDate = appDay()
     .add(getRandomInteger(-maxGap, maxGap), 'day')
     .add(getRandomInteger(-maxGap, maxGap), 'hour')
     .add(getRandomInteger(-maxGap, maxGap), 'minute');
@@ -33,8 +33,8 @@ const generateDates = () => {
 
 const getDuration = (beginISO, endISO) => {
   const getTimeDiff = () => {
-    const startDate = dayjs(beginISO).toDate();
-    const endDate = dayjs(endISO).toDate();
+    const startDate = appDay(beginISO).toDate();
+    const endDate = appDay(endISO).toDate();
     const resultDict = new Date(endDate - startDate);
 
     return {
@@ -61,6 +61,6 @@ const getDuration = (beginISO, endISO) => {
 };
 
 const dataChange = (item, prop) => ({ ...item, ...prop });
-const updateDate = (data, update) => data.map((item) => item.id === update.id ? update : item);
+const updateDate = (data, update) => data.map((item) => (item.id === update.id ? update : item));
 
 export { getRandomInteger, getRandomArrayElement, getRandomInt, generateDates, dataChange, updateDate, getDuration };
