@@ -42,7 +42,7 @@ const createWaypoint = (waypoint, destinationCurrent, offerCurrent) => {
     <p class="event__duration">${duration}</p>
   </div>
   <p class="event__price">
-    €&nbsp;<span class="event__price-value">${price}</span>
+    €&nbsp;<span class="event__price-value">${price ? price : 0}</span>
   </p>
   <h4 class="visually-hidden">Offers:</h4>
   <ul class="event__selected-offers">

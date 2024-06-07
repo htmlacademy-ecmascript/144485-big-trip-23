@@ -1,6 +1,7 @@
 import { render, replace, remove } from '../framework/render.js';
 import Waypoint from '../view/waypoint.js';
 import WaypointEdit from '../view/waypoint-edit.js';
+import { UserAction, UpdateType } from '../utils.js/const.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -48,6 +49,7 @@ export default class PresenterWaypoint {
       destinationsModel: this.#destinationsModel,
       onEditFormSave: this.#onEditFormSave,
       offersModel: this.#offersModel,
+      onDeleteForm: this.#handleEditFormDeleteButtonClick
     });
 
     if ((prevEventViewComponent === null) | (prevEventEditViewComponent === null)) {
@@ -109,11 +111,28 @@ export default class PresenterWaypoint {
     this.#replaceFormToPoint();
   };
 
-  #onEditFormSave = () => {
+  #onEditFormSave = (point) => {
+    this.#onPointChange(
+      UserAction.UPDATE_POINT,
+      UpdateType.MINOR,
+      point
+    );
     this.#replaceFormToPoint();
   };
 
+  #handleEditFormDeleteButtonClick = (point) => {
+    this.#onPointChange(
+      UserAction.DELETE_POINT,
+      UpdateType.MINOR,
+      point
+    );
+  };
+
   #onFavoriteClick = () => {
-    this.#onPointChange({ ...this.#point, isFavorite: !this.#point.isFavorite });
+    this.#onPointChange(
+      UserAction.UPDATE_POINT,
+      UpdateType.PATCH,
+      { ...this.#point, isFavorite: !this.#point.isFavorite }
+    );
   };
 }
