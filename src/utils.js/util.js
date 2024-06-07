@@ -60,7 +60,9 @@ const getDuration = (beginISO, endISO) => {
   return resultArray.join(' ');
 };
 
-const dataChange = (item, prop) => ({ ...item, ...prop });
-const updateDate = (data, update) => data.map((item) => (item.id === update.id ? update : item));
+const isEscapeKey = (evt) => evt.key === 'Escape';
 
-export { getRandomInteger, getRandomArrayElement, getRandomInt, generateDates, dataChange, updateDate, getDuration };
+const dataChange = (item, prop) => ({ ...item, ...prop });
+// const updateDate = (data, update) => data.map((item) => (item.id === update.id ? update : item));
+
+export { getRandomInteger, getRandomArrayElement, getRandomInt, generateDates, dataChange, getDuration, isEscapeKey };
