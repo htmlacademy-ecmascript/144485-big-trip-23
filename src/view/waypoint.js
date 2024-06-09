@@ -2,19 +2,8 @@ import AbstractView from '../framework/view/abstract-view.js';
 import { appDay } from '../utils.js/day.js';
 import { getDuration } from '../utils.js/util.js';
 
-const createOfferMarkup = (offer) => `<li class="event__offer">
-<span class="event__offer-title">${offer.title}</span>
-&plus;&euro;&nbsp;
-<span class="event__offer-price">${offer.price}</span>
-</li>`;
-
-const getOffersChoose = (offerCurrent) => {
-  const getCurrentOffer = offerCurrent.offer;
-  return getCurrentOffer.map(createOfferMarkup).join('');
-};
-
-const createWaypoint = (waypoint, destinationCurrent, offerCurrent) => {
-  const { basePrice: price, dateFrom: ISOFrom, dateTo: ISOTo, isFavorite, type } = waypoint;
+const createWaypoint = (waypoint, destinationCurrent, offers) => {
+  const { basePrice: price, dateFrom: ISOFrom, dateTo: ISOTo, isFavorite, type, offers: offersPoint } = waypoint;
   const dayStart = appDay(ISOFrom).format('MMM D');
   const dateStart = appDay(ISOFrom).format('YYYY-MM-DD');
   const timeFrom = appDay(ISOFrom).format('HH:mm');
@@ -23,8 +12,24 @@ const createWaypoint = (waypoint, destinationCurrent, offerCurrent) => {
   const datetimeTo = appDay(ISOTo).format('YYYY-MM-DDTHH:mm');
   const duration = getDuration(ISOFrom, ISOTo);
   const isFavoriteClass = isFavorite ? ' event__favorite-btn--active' : '';
-  const offers = getOffersChoose(offerCurrent);
   const typePicture = type.toLowerCase();
+
+  const pointTypeOffer = offers.find((offer) => offer.type === type);
+
+  const createOffersTemplate = () => {
+    if (!pointTypeOffer) {
+      return '';
+    }
+
+    return pointTypeOffer.offers.filter((offer) => offersPoint.includes(offer.id)).map((offer) => `<li class="event__offer">
+                    <span class="event__offer-title">${offer.title}</span>
+                    &plus;&euro;&nbsp;
+                    <span class="event__offer-price">${offer.price}</span>
+                  </li>`).join('');
+  };
+
+  const pointTypeList = createOffersTemplate();
+
 
   return `<li class="trip-events__item">
 <div class="event">
@@ -46,7 +51,7 @@ const createWaypoint = (waypoint, destinationCurrent, offerCurrent) => {
   </p>
   <h4 class="visually-hidden">Offers:</h4>
   <ul class="event__selected-offers">
-  ${offers}
+  ${pointTypeList}
   </ul>
   <button class="event__favorite-btn ${isFavoriteClass}" type="button">
     <span class="visually-hidden">Add to favorite</span>
@@ -63,30 +68,33 @@ const createWaypoint = (waypoint, destinationCurrent, offerCurrent) => {
 
 export default class Waypoint extends AbstractView {
   #waypoint = null;
-  #destinationsModel = null;
+  #destinations = null;
   #onClickButtonRollup = null;
   #onFavoriteClick = null;
   #rollupButton = null;
   #favoriteButton = null;
-  #destinationCurrent;
-  #offerCurrent;
+  #destinationCurrent = null;
+  #offerCurrent = null;
+  #offers = null;
 
-  constructor({ waypoint, onClickButtonRollup, destinationsModel, onFavoriteClick, offerCurrent }) {
+  constructor({ waypoint, onClickButtonRollup, destinations, onFavoriteClick, offerCurrent, destinationCurrent, offers }) {
     super();
     this.#waypoint = waypoint;
     this.#offerCurrent = offerCurrent;
+    this.#offers = offers;
     this.#onClickButtonRollup = onClickButtonRollup;
-    this.#destinationsModel = destinationsModel;
-    this.#destinationCurrent = this.#destinationsModel.getDestinationId(this.#waypoint?.destination);
+    this.#destinations = destinations;
+    this.#destinationCurrent = destinationCurrent;
     this.#onFavoriteClick = onFavoriteClick;
     this.#rollupButton = this.element.querySelector('.event__rollup-btn');
     this.#rollupButton.addEventListener('click', this.#onClickButtonRollupHandler);
     this.#favoriteButton = this.element.querySelector('.event__favorite-btn');
     this.#favoriteButton.addEventListener('click', this.#onFavoriteClickHandler);
+
   }
 
   get template() {
-    return createWaypoint(this.#waypoint, this.#destinationCurrent, this.#offerCurrent);
+    return createWaypoint(this.#waypoint, this.#destinationCurrent, this.#offers);
   }
 
   #onFavoriteClickHandler = (evt) => {

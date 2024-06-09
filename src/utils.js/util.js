@@ -63,6 +63,14 @@ const getDuration = (beginISO, endISO) => {
 const isEscapeKey = (evt) => evt.key === 'Escape';
 
 const dataChange = (item, prop) => ({ ...item, ...prop });
-// const updateDate = (data, update) => data.map((item) => (item.id === update.id ? update : item));
 
-export { getRandomInteger, getRandomArrayElement, getRandomInt, generateDates, dataChange, getDuration, isEscapeKey };
+const PRICE_FIELD_PATTERN = /\D+/;
+
+const validatePriceField = (value) => {
+  if (PRICE_FIELD_PATTERN.test(value)) {
+    value = 0;
+  }
+  return +value;
+};
+
+export { getRandomInteger, getRandomArrayElement, getRandomInt, generateDates, dataChange, getDuration, isEscapeKey, validatePriceField };

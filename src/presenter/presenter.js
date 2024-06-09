@@ -11,6 +11,7 @@ import { sortByDay, sortByTime, sortByPrice } from '../utils.js/sort.js';
 import { UserAction, UpdateType } from '../utils.js/const.js';
 import { filter } from '../utils.js/filter.js';
 import { FilterType } from '../utils.js/filter.js';
+import LoadingView from '../view/loading-view.js';
 
 export default class Presenter {
   #creationForm = null;
@@ -18,7 +19,7 @@ export default class Presenter {
   #tripInfo = new TripInfo();
   #waypointList = new WaypointList();
   #listEmpty = null;
-  #destinationsModel;
+  #destinations = null;
   #pointsModel = null;
   #pointPresenterMap = new Map();
   #currentSortType = null;
@@ -26,23 +27,24 @@ export default class Presenter {
   #listMessageComponent = null;
   #tripEventsElement = null;
   #presenterNewPoint = null;
-  #offersModel = null;
+  #offers = null;
+  #isLoading = true;
+  #tripMainElement = null;
+  #loadingComponent = new LoadingView();
 
-  constructor({ pointsModel, destinationsModel, offersModel, filterModel }) {
+  constructor({ pointsModel, filterModel }) {
     this.#pointsModel = pointsModel;
-    this.#destinationsModel = destinationsModel;
-    this.#offersModel = offersModel;
     this.#filterModel = filterModel;
+    this.#offers = pointsModel.offers;
     this.pageHeaderElement = document.querySelector('.page-header');
-    this.tripMainElement = this.pageHeaderElement.querySelector('.trip-main');
+    this.#tripMainElement = this.pageHeaderElement.querySelector('.trip-main');
     this.pageMainElement = document.querySelector('.page-main');
     this.#tripEventsElement = this.pageMainElement.querySelector('.trip-events');
     this.#pointsModel.addObserver(this.#handlerModelEvent);
     this.#filterModel.addObserver(this.#handlerModelEvent);
 
     this.#presenterNewPoint = new PresenterNewPoint({
-      offersModel: this.#offersModel,
-      destinationsModel: this.#destinationsModel,
+      destinations: this.#destinations,
       containerList: this.#waypointList.element,
       onPointChange: this.#handleViewAction,
       onModeChange: this.#onModeChange,
@@ -101,15 +103,24 @@ export default class Presenter {
         this.#clearPoinsList({ resetSortType: true });
         this.#renderWaypointList();
         break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        this.#renderWaypointList();
+        break;
     }
 
   };
+
+  #renderLoadingMessage() {
+    render(this.#loadingComponent, this.#tripEventsElement);
+  }
 
   #renderCreationform() {
     this.#creationForm = new CreationForm({
       onClick: this.#handleNewPointButtonClick
     });
-    render(this.#creationForm, this.tripMainElement);
+    render(this.#creationForm, this.#tripMainElement);
   }
 
   #handleNewPointButtonClose = () => {
@@ -145,6 +156,8 @@ export default class Presenter {
     this.#pointPresenterMap.forEach((presenter) => presenter.destroy());
     this.#pointPresenterMap.clear();
 
+    remove(this.#sortPanel);
+    remove(this.#loadingComponent);
     remove(this.#listMessageComponent);
 
     if (resetSortType) {
@@ -153,7 +166,7 @@ export default class Presenter {
   }
 
   #renderTripInfo() {
-    render(this.#tripInfo, this.tripMainElement, RenderPosition.AFTERBEGIN);
+    render(this.#tripInfo, this.#tripMainElement, RenderPosition.AFTERBEGIN);
   }
 
   #listEmptyMessage() {
@@ -168,9 +181,11 @@ export default class Presenter {
 
   #renderWaypoint = (point) => {
     const pointPresenter = new PresenterWaypoint({
+      pointsModel: this.#pointsModel,
       pointListContainer: this.#waypointList.element,
-      destinationsModel: this.#destinationsModel,
-      offersModel: this.#offersModel,
+      destinationCurrent: this.#pointsModel.getDestinationId(point.destination),
+      offers: this.#offers,
+      offersCurrent: this.#pointsModel.getCurrentOffer(point.type),
       onPointChange: this.#handleViewAction,
       onModeChange: this.#onModeChange,
     });
@@ -182,7 +197,13 @@ export default class Presenter {
   #renderWaypointList = () => {
     render(this.#waypointList, this.#tripEventsElement);
 
+    if (this.#isLoading) {
+      this.#renderLoadingMessage();
+      return;
+    }
+
     if (this.points.length) {
+      remove(this.#loadingComponent);
       remove(this.#listMessageComponent);
       this.#renderWaypoints();
     } else {

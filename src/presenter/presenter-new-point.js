@@ -4,20 +4,20 @@ import { isEscapeKey } from '../utils.js/util.js';
 import { UpdateType, UserAction } from '../utils.js/const.js';
 
 export default class PresenterNewPoint {
-  #offersModel = null;
+  #offers = null;
   #destinationsModel = null;
 
   #containerList = null;
-
+  #destinationsoffersModel = null;
   #pointListContainer = null;
   #onPointChange = null;
   #handleDestroy = null;
 
   #pointEditComponent = null;
 
-  constructor({ offersModel, destinationsModel, containerList, onPointChange, handleDestroy }) {
-    this.#offersModel = offersModel;
-    this.#destinationsModel = destinationsModel;
+  constructor({ offers, destinationsModel, containerList, onPointChange, handleDestroy }) {
+    this.#offers = offers;
+    this.#destinationsoffersModel = destinationsModel;
     this.#pointListContainer = containerList;
     this.#onPointChange = onPointChange;
     this.#handleDestroy = handleDestroy;
@@ -31,7 +31,7 @@ export default class PresenterNewPoint {
     }
 
     this.#pointEditComponent = new WaypointEdit({
-      offersModel: this.#offersModel,
+      offers: this.#offers,
       destinationsModel: this.#destinationsModel,
       onEditFormSave: this.#handleFormSubmit,
       onDeleteForm: this.#handleFormCancelButtonClick
