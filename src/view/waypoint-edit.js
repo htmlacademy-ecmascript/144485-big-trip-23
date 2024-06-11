@@ -1,5 +1,4 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-// import { EVENT_TYPES } from '../mock/variablies.js';
 import { validatePriceField } from '../utils.js/util.js';
 
 import flatpickr from 'flatpickr';
@@ -13,11 +12,10 @@ const DefaultPointData = {
 };
 
 const BLANK_POINT = {
-  basePrice: '',
+  basePrice: '1',
   dateFrom: DefaultPointData.DATE_FROM,
   dateTo: DefaultPointData.DATE_TO,
   destination: '',
-  id: '',
   isFavorite: false,
   offers: [],
   type: DefaultPointData.TYPE
@@ -69,12 +67,15 @@ const createWaypointForm = (waypoint, destinations, offers, pointsModel) => {
   }
 
   let photoList = '';
-  if (destinationCurrent.pictures.length) {
-    photoList = `<div class="event__photos-container">
+  if (destinationCurrent) {
+    if (destinationCurrent.pictures) {
+      photoList = `<div class="event__photos-container">
     <div class="event__photos-tape">
       ${destinationCurrent.pictures.map((picture) => `<img class="event__photo" src="${picture.src}" alt="${picture.description}"></img>`).join('')}
     </div>
   </div>`;
+    }
+
   }
 
   let pointDestinationTemplate = '';
@@ -83,13 +84,13 @@ const createWaypointForm = (waypoint, destinations, offers, pointsModel) => {
     <section class="event__section  event__section--destination">
       <h3 class="event__section-title  event__section-title--destination">Destination</h3>
       <p class="event__destination-description">${destinationCurrent.description}</p>
-      ${photoList}
+        ${photoList}
     </section>`;
   }
 
 
   const cityList = createCityList(destinations);
-  const typeList = createTypeList(pointsModel.event);
+  const typeList = createTypeList(pointsModel.offers);
   const parsDateTo = appDay(dateTo);
   const parsDateFrom = appDay(dateFrom);
   const isNewPoint = !waypoint.id;
@@ -139,7 +140,7 @@ const createWaypointForm = (waypoint, destinations, offers, pointsModel) => {
         <span class="visually-hidden">Price</span>
         &euro;
       </label>
-      <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice ? basePrice : 0}" required>
+      <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice ? basePrice : 1}" required min="1">
     </div>
     <button class="event__save-btn  btn  btn--blue" type="submit" ${isValidForm ? '' : 'disabled'}>Save</button>
     <button class="event__reset-btn" type="reset">${isNewPoint ? 'Cancel' : 'Delete'}</button>
@@ -149,7 +150,7 @@ const createWaypointForm = (waypoint, destinations, offers, pointsModel) => {
   </header>
   <section class="event__details">
   ${offersTemplate}
-  ${pointDestinationTemplate}
+${pointDestinationTemplate}
   </section >
 </form >
 </li > `;
@@ -175,9 +176,7 @@ export default class WaypointEdit extends AbstractStatefulView {
     this.#onEditFormRollupButtonClick = onEditFormRollupButtonClick;
     this.#onEditFormSave = onEditFormSave;
     this.#pointsModel = pointsModel;
-    this.#offerCurrent = this.#pointsModel.getCurrentOffer(this._state.type);
     this.#onDeleteForm = onDeleteForm;
-
 
     this._restoreHandlers();
   }
@@ -191,7 +190,7 @@ export default class WaypointEdit extends AbstractStatefulView {
   }
 
   _restoreHandlers() {
-    this.element.querySelector('.event__save-btn').addEventListener('click', this.#onEditFormSaveHandler);
+    this.element.querySelector('form').addEventListener('submit', this.#onEditFormSaveHandler);
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#onDeleteEditFormHandler);
     this.element.querySelector('.event__type-group').addEventListener('change', this.#eventTypeToggleHandler);
     this.element.querySelectorAll('.event__offer-selector input').forEach((offer) => offer.addEventListener('change', this.#offersChangeHandler));

@@ -58,6 +58,7 @@ export default class PresenterWaypoint {
       offers: this.#offers,
       offerCurrent: this.#offersCurrent,
       onDeleteForm: this.#handleEditFormDeleteButtonClick
+
     });
 
     if ((prevEventViewComponent === null) | (prevEventEditViewComponent === null)) {
@@ -143,4 +144,39 @@ export default class PresenterWaypoint {
       { ...this.#point, isFavorite: !this.#point.isFavorite }
     );
   };
+
+  setSaving() {
+    if (this.#mode === Mode.EDITING) {
+      this.#eventEditView.updateElement({
+        isDisabled: true,
+        isSaving: true
+      });
+    }
+  }
+
+  setDeleting() {
+    if (this.#mode === Mode.EDITING) {
+      this.#eventEditView.updateElement({
+        isDisabled: true,
+        isDeleting: true
+      });
+    }
+  }
+
+  setAborting() {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#eventView.shake();
+      return;
+    }
+
+    const resetFormState = () => {
+      this.#eventEditView.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#eventEditView.shake(resetFormState);
+  }
 }

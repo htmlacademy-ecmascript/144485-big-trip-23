@@ -44,7 +44,9 @@ export default class Presenter {
     this.#filterModel.addObserver(this.#handlerModelEvent);
 
     this.#presenterNewPoint = new PresenterNewPoint({
-      destinations: this.#destinations,
+      pointsModel: this.#pointsModel,
+      destinations: this.#pointsModel.destinations,
+      offers: this.#pointsModel.offers,
       containerList: this.#waypointList.element,
       onPointChange: this.#handleViewAction,
       onModeChange: this.#onModeChange,
@@ -156,7 +158,7 @@ export default class Presenter {
     this.#pointPresenterMap.forEach((presenter) => presenter.destroy());
     this.#pointPresenterMap.clear();
 
-    remove(this.#sortPanel);
+    // remove(this.#sortPanel);
     remove(this.#loadingComponent);
     remove(this.#listMessageComponent);
 
@@ -198,6 +200,7 @@ export default class Presenter {
     render(this.#waypointList, this.#tripEventsElement);
 
     if (this.#isLoading) {
+
       this.#renderLoadingMessage();
       return;
     }

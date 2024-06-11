@@ -7,6 +7,7 @@ export default class PointsModel extends Observable {
   #points = [];
   #offers = [];
   #destinations = [];
+
   constructor({ pointsApiService }) {
     super();
     this.#pointsApiService = pointsApiService;
@@ -39,6 +40,7 @@ export default class PointsModel extends Observable {
       this.#destinations = [];
     }
 
+
     this._notify(UpdateType.INIT);
   }
 
@@ -54,13 +56,49 @@ export default class PointsModel extends Observable {
 
       this.#points = [
         ...this.#points.slice(0, index),
-        update,
+        updatedPoint,
         ...this.#points.slice(index + 1)
       ];
 
       this._notify(updateType, updatedPoint);
     } catch (err) {
       throw new Error('Can\'t update point');
+    }
+  }
+
+  async addPoint(updateType, update) {
+    try {
+      const response = await this.#pointsApiService.addPoint(update);
+      const newPoint = this.#adaptToClient(response);
+
+      this.#points = [
+        newPoint,
+        ...this.#points
+      ];
+
+      this._notify(updateType, newPoint);
+    } catch (err) {
+      throw new Error('Can\'t add point');
+    }
+
+  }
+
+  async deletePoint(updateType, update) {
+    const index = this.#points.findIndex((point) => point.id === update.id);
+    if (index === -1) {
+      throw new Error('Can\'t update unexisting point');
+    }
+
+    try {
+      await this.#pointsApiService.deletePoint(update);
+      this.#points = [
+        ...this.#points.slice(0, index),
+        ...this.#points.slice(index + 1)
+      ];
+
+      this._notify(updateType);
+    } catch (err) {
+      throw new Error('Can\'t delete point');
     }
   }
 
@@ -79,47 +117,6 @@ export default class PointsModel extends Observable {
     delete adaptedPoint['is_favorite'];
 
     return adaptedPoint;
-  }
-
-  // updatePoint(updateType, update) {
-  //   const index = this.#tripEventAll.findIndex((point) => point.id === update.id);
-
-  //   if (index === -1) {
-  //     throw new Error('Can\'t update unexisting point');
-  //   }
-
-  //   this.#tripEventAll = [
-  //     ...this.#tripEventAll.slice(0, index),
-  //     update,
-  //     ...this.#tripEventAll.slice(index + 1)
-  //   ];
-
-  //   this._notify(updateType, update);
-  // }
-
-  addPoint(updateType, update) {
-    update.id = crypto.randomUUID();
-    this.#points = [
-      update,
-      ...this.#points,
-    ];
-
-    this._notify(updateType, update);
-  }
-
-  deletePoint(updateType, update) {
-    const index = this.#points.findIndex((point) => point.id === update.id);
-
-    if (index === -1) {
-      throw new Error('Can\'t update unexisting point');
-    }
-
-    this.#points = [
-      ...this.#points.slice(0, index),
-      ...this.#points.slice(index + 1)
-    ];
-
-    this._notify(updateType);
   }
 
   getCurrentOffer(type) {
