@@ -8,7 +8,7 @@ import { appDay } from '../utils.js/day.js';
 const DefaultPointData = {
   DATE_FROM: appDay().toISOString(),
   DATE_TO: appDay().add(30, 'minutes').toISOString(),
-  TYPE: 'taxi'
+  TYPE: 'flight'
 };
 
 const BLANK_POINT = {
@@ -21,12 +21,17 @@ const BLANK_POINT = {
   type: DefaultPointData.TYPE
 };
 
-
 const createCityItem = (city) => `<option value="${city}"></option>`;
-const createTypeItem = (typeName) => `<div class="event__type-item">
-<input id="event-type-${typeName}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${typeName}">
-<label class="event__type-label  event__type-label--${typeName.toLowerCase()}" for="event-type-${typeName}" style>${typeName}</label>
-</div>`;
+
+const createTypeItem = (typeName) => {
+  const formattedTypeName = typeName.charAt(0).toUpperCase() + typeName.slice(1).toLowerCase();
+
+  return `
+  <div class="event__type-item">
+    <input id="event-type-${typeName}" class="event__type-input visually-hidden" type="radio" name="event-type" value="${typeName}">
+      <label class="event__type-label event__type-label--${typeName}" for="event-type-${typeName}">${formattedTypeName}</label>
+  </div>`;
+};
 
 
 const createTypeList = (arr) => {
@@ -40,64 +45,72 @@ const createCityList = (arr) => {
   return cities.map(createCityItem).join('');
 };
 
+const createPointOffers = (offerCurrent, offersPoint) => {
+  if (!offerCurrent.offers.length) {
+    return '';
+  }
 
-const createWaypointForm = (waypoint, destinations, offers, pointsModel) => {
+  return `
+  <section class="event__section  event__section--offers">
+    <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+    <div class="event__available-offers">
+    ${offerCurrent.offers.map((offer) => `
+        <div class="event__offer-selector">
+          <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.title}-${offer.id}" type="checkbox" name="${offer.title}" data-offer-id="${offer.id}" ${offersPoint.includes(offer.id) ? 'checked' : ''}>
+          <label class="event__offer-label" for="event-offer-${offer.title}-${offer.id}">
+            <span class="event__offer-title">${offer.title}</span>
+            &plus;&euro;&nbsp;
+            <span class="event__offer-price">${offer.price}</span>
+          </label>
+        </div>`).join('')}
+    </div>
+  </section>`;
+};
 
-  const { type, dateFrom, dateTo, basePrice, offers: offersPoint } = waypoint;
-
-  const offerCurrent = offers.find((item) => item.type === waypoint.type);
-  const destinationCurrent = destinations.find((item) => item.id === waypoint.destination);
-  let offersTemplate = '';
-  if (offerCurrent) {
-    offersTemplate = `
-    <section class="event__section  event__section--offers">
-      <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-        <div class="event__available-offers">
-          ${offerCurrent.offers.map((offer) => `
-          <div class="event__offer-selector">
-            <input class="event__offer-checkbox  visually-hidden" id="${offer.id}" type="checkbox" name="${offer.title}" data-offer-id="${offer.id}" ${offersPoint.includes(offer.id) ? 'checked' : ''}>
-            <label class="event__offer-label" for="${offer.id}">
-              <span class="event__offer-title">${offer.title}</span>
-              &plus;&euro;&nbsp;
-              <span class="event__offer-price">${offer.price}</span>
-            </label>
-          </div>`).join('')}
-          </div>
-      </section>`;
+const createPointDestination = (destinationCurrent) => {
+  if (!destinationCurrent || !destinationCurrent.description) {
+    return '';
   }
 
   let photoList = '';
-  if (destinationCurrent) {
-    if (destinationCurrent.pictures) {
-      photoList = `<div class="event__photos-container">
+
+  if (destinationCurrent.pictures.length !== 0) {
+    photoList = `<div class="event__photos-container">
     <div class="event__photos-tape">
       ${destinationCurrent.pictures.map((picture) => `<img class="event__photo" src="${picture.src}" alt="${picture.description}"></img>`).join('')}
     </div>
   </div>`;
-    }
-
   }
 
-  let pointDestinationTemplate = '';
-  if (destinationCurrent) {
-    pointDestinationTemplate = `
+  return `
     <section class="event__section  event__section--destination">
       <h3 class="event__section-title  event__section-title--destination">Destination</h3>
       <p class="event__destination-description">${destinationCurrent.description}</p>
-        ${photoList}
-    </section>`;
-  }
 
+        ${photoList}
+
+    </section>`;
+};
+
+const createWaypointForm = (waypoint, destinations, offers, pointsModel) => {
+
+  const { type, dateFrom, dateTo, basePrice, offers: offersPoint, isDisabled, isSaving, isDeleting } = waypoint;
+
+  const offerCurrent = offers.find((item) => item.type === waypoint.type);
+  const destinationCurrent = destinations.find((item) => item.id === waypoint.destination);
+
+  const createPointDestinationList = createPointDestination(destinationCurrent);
+  const createPointOffersList = createPointOffers(offerCurrent, offersPoint);
 
   const cityList = createCityList(destinations);
   const typeList = createTypeList(pointsModel.offers);
   const parsDateTo = appDay(dateTo);
   const parsDateFrom = appDay(dateFrom);
   const isNewPoint = !waypoint.id;
-  const isValidForm = destinationCurrent && basePrice !== 0;
-  // const submitBtnText = isSaving ? 'Saving...' : 'Save';
-  // const deleteBtnText = isDeleting ? 'Deleting...' : 'Delete';
-  // const resetBtnText = isNewPoint ? 'Cancel' : deleteBtnText;
+  const isSubmitDisabled = destinationCurrent && basePrice;
+  const submitButtonText = isSaving ? 'Saving...' : 'Save';
+  const deleteButtonText = isDeleting ? 'Deleting...' : 'Delete';
+  const resetButtonText = isNewPoint ? 'Cancel' : deleteButtonText;
 
   return `<li class="trip-events__item">
 <form class="event event--edit" action="#" method="post">
@@ -118,10 +131,8 @@ const createWaypointForm = (waypoint, destinations, offers, pointsModel) => {
     </div>
 
     <div class="event__field-group  event__field-group--destination">
-      <label class="event__label  event__type-output" for="event-destination- ${type}">
-        ${type}
-      </label>
-      <input class="event__input  event__input--destination" id="event-destination- ${type}" type="text" name="event-destination" value="${destinationCurrent ? destinationCurrent.name : ''}" list="destination-list-1">
+      <label class="event__label  event__type-output" for="event-destination-${type}">${type}</label>
+      <input class="event__input  event__input--destination" id="event-destination-${type}" type="text" name="event-destination" value="${destinationCurrent ? destinationCurrent.name : ''}" list="destination-list-1">
       <datalist id="destination-list-1">
       ${cityList}
       </datalist>
@@ -142,15 +153,15 @@ const createWaypointForm = (waypoint, destinations, offers, pointsModel) => {
       </label>
       <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice ? basePrice : 1}" required min="1">
     </div>
-    <button class="event__save-btn  btn  btn--blue" type="submit" ${isValidForm ? '' : 'disabled'}>Save</button>
-    <button class="event__reset-btn" type="reset">${isNewPoint ? 'Cancel' : 'Delete'}</button>
+    <button class="event__save-btn  btn  btn--blue" type="submit" ${isSubmitDisabled || isDisabled ? '' : 'disabled'}>${submitButtonText}</button>
+    <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${resetButtonText}</button>
     ${isNewPoint ? '' : `<button class="event__rollup-btn" type="button">
       <span class="visually-hidden">Open event</span>
     </button>`}
   </header>
   <section class="event__details">
-  ${offersTemplate}
-${pointDestinationTemplate}
+  ${createPointOffersList}
+${createPointDestinationList}
   </section >
 </form >
 </li > `;
@@ -160,9 +171,6 @@ export default class WaypointEdit extends AbstractStatefulView {
   #onEditFormRollupButtonClick = null;
   #onDeleteForm = null;
   #destinations = null;
-  #destinationAll = [];
-  #offerCurrent = [];
-  #destinationCurrent = null;
   #offers = null;
   #datepickerFrom = null;
   #datepickerTo = null;
@@ -297,8 +305,10 @@ export default class WaypointEdit extends AbstractStatefulView {
     this.#datepickerFrom = flatpickr(this.element.querySelector('input[name=event-start-time]'), {
       dateFormat: 'j/m/y H:i',
       defaultDate: this._state.dateFrom,
+      maxDate: this._state.dateTo,
       onChange: this.#dateFromChangeHandler,
       enableTime: true,
+      'time_24hr': true
     });
   }
 
@@ -306,11 +316,27 @@ export default class WaypointEdit extends AbstractStatefulView {
     this.#datepickerTo = flatpickr(this.element.querySelector('input[name=event-end-time]'), {
       dateFormat: 'j/m/y H:i',
       defaultDate: this._state.dateTo,
+      minDate: this._state.dateFrom,
       onChange: this.#dateToChangeHandler,
       enableTime: true,
+      'time_24hr': true
     });
   }
 
-  static parsePointToState = (point) => ({ ...point });
-  static parseStateToPoint = (state) => ({ ...state });
+  static parsePointToState = (point) => ({
+    ...point,
+    isDisabled: false,
+    isSaving: false,
+    isDeleting: false
+  });
+
+  static parseStateToPoint = (state) => {
+    const point = { ...state };
+
+    delete point.isDisabled;
+    delete point.isSaving;
+    delete point.isDeleting;
+
+    return point;
+  };
 }

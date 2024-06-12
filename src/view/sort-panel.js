@@ -1,10 +1,10 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { SORT_TYPE } from '../utils.js/sort.js';
 
-const createSortPanel = () =>
+const createSortPanel = (currentSortType) =>
   `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
 <div class="trip-sort__item  trip-sort__item--day">
-  <input id="sort-day" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-day">
+  <input id="sort-day" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-day" ${currentSortType === SORT_TYPE.DAY ? 'checked' : ''}>
   <label class="trip-sort__btn" for="sort-day" data-sort-type="${SORT_TYPE.DAY}">Day</label>
 </div>
 
@@ -14,12 +14,12 @@ const createSortPanel = () =>
 </div>
 
 <div class="trip-sort__item  trip-sort__item--time">
-  <input id="sort-time" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-time">
+  <input id="sort-time" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-time" ${currentSortType === SORT_TYPE.TIME ? 'checked' : ''}>
   <label class="trip-sort__btn" for="sort-time" data-sort-type="${SORT_TYPE.TIME}">Time</label>
 </div>
 
 <div class="trip-sort__item  trip-sort__item--price">
-  <input id="sort-price" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-price">
+  <input id="sort-price" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-price" ${currentSortType === SORT_TYPE.PRICE ? 'checked' : ''}>
   <label class="trip-sort__btn" for="sort-price" data-sort-type="${SORT_TYPE.PRICE}">Price</label>
 </div>
 
@@ -31,18 +31,22 @@ const createSortPanel = () =>
 
 export default class SortPanel extends AbstractView {
   #onSortTypeChange = null;
-  constructor({ onSortTypeChange }) {
+  #currentSortType = null;
+  constructor({ currentSortType, onSortTypeChange }) {
     super();
+
+    this.#currentSortType = currentSortType;
     this.#onSortTypeChange = onSortTypeChange;
 
     this.element.addEventListener('click', this.#onSortTypeChangeHandler);
   }
 
   get template() {
-    return createSortPanel();
+    return createSortPanel(this.#currentSortType);
   }
 
   #onSortTypeChangeHandler = (evt) => {
+    evt.preventDefault();
     if (evt.target.tagName !== 'LABEL') {
       return;
     }

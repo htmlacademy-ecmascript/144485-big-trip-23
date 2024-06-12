@@ -11,11 +11,11 @@ export default class PresenterNewPoint {
 
   #pointEditComponent = null;
 
-  constructor({ containerList, onPointChange, handleDestroy, pointsModel }) {
+  constructor({ containerList, onPointChange, pointsModel, onDestroy }) {
     this.#pointsModel = pointsModel;
     this.#pointListContainer = containerList;
     this.#onPointChange = onPointChange;
-    this.#handleDestroy = handleDestroy;
+    this.#handleDestroy = onDestroy;
   }
 
   init() {
@@ -47,6 +47,25 @@ export default class PresenterNewPoint {
     this.#pointEditComponent = null;
 
     document.removeEventListener('keydown', this.#escapeKeydownHandler);
+  }
+
+  setSaving() {
+    this.#pointEditComponent.updateElement({
+      isDisabled: true,
+      isSaving: true
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#pointEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#pointEditComponent.shake(resetFormState);
   }
 
   #escapeKeydownHandler = (evt) => {

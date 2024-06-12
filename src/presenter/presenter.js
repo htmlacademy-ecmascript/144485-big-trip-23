@@ -1,5 +1,4 @@
 import { render, RenderPosition, remove } from '../framework/render.js';
-import CreationForm from '../view/creation-form.js';
 import SortPanel from '../view/sort-panel.js';
 import TripInfo from '../view/trip-info.js';
 import WaypointList from '../view/waypoint-list.js';
@@ -12,6 +11,14 @@ import { UserAction, UpdateType } from '../utils.js/const.js';
 import { filter } from '../utils.js/filter.js';
 import { FilterType } from '../utils.js/filter.js';
 import LoadingView from '../view/loading-view.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
+import ErrorView from '../view/error-view.js';
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000
+};
+
 
 export default class Presenter {
   #creationForm = null;
@@ -22,7 +29,7 @@ export default class Presenter {
   #destinations = null;
   #pointsModel = null;
   #pointPresenterMap = new Map();
-  #currentSortType = null;
+  #currentSortType = SORT_TYPE.DAY;
   #filterModel = null;
   #listMessageComponent = null;
   #tripEventsElement = null;
@@ -31,8 +38,17 @@ export default class Presenter {
   #isLoading = true;
   #tripMainElement = null;
   #loadingComponent = new LoadingView();
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT
+  });
 
-  constructor({ pointsModel, filterModel }) {
+  #errorComponent = new ErrorView();
+
+  #pointPresenter = null;
+
+
+  constructor({ pointsModel, filterModel, onNewPointDestroy }) {
     this.#pointsModel = pointsModel;
     this.#filterModel = filterModel;
     this.#offers = pointsModel.offers;
@@ -50,7 +66,7 @@ export default class Presenter {
       containerList: this.#waypointList.element,
       onPointChange: this.#handleViewAction,
       onModeChange: this.#onModeChange,
-      handleDestroy: this.#handleNewPointButtonClose
+      onDestroy: onNewPointDestroy
     });
   }
 
@@ -77,18 +93,37 @@ export default class Presenter {
   }
 
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
+
     switch (actionType) {
       case UserAction.UPDATE_POINT:
-        this.#pointsModel.updatePoint(updateType, update);
+        this.#pointPresenterMap.get(update.id).setSaving();
+        try {
+          await this.#pointsModel.updatePoint(updateType, update);
+        } catch (err) {
+          this.#pointPresenterMap.get(update.id).setAborting();
+        }
         break;
       case UserAction.ADD_POINT:
-        this.#pointsModel.addPoint(updateType, update);
+        this.#presenterNewPoint.setSaving();
+        try {
+          await this.#pointsModel.addPoint(updateType, update);
+        } catch (err) {
+          this.#pointPresenter.setAborting();
+        }
         break;
       case UserAction.DELETE_POINT:
-        this.#pointsModel.deletePoint(updateType, update);
+        this.#pointPresenterMap.get(update.id).setDeleting();
+        try {
+          await this.#pointsModel.deletePoint(updateType, update);
+        } catch (err) {
+          this.#pointPresenterMap.get(update.id).setAborting();
+        }
         break;
     }
+
+    this.#uiBlocker.unblock();
 
   };
 
@@ -118,23 +153,9 @@ export default class Presenter {
     render(this.#loadingComponent, this.#tripEventsElement);
   }
 
-  #renderCreationform() {
-    this.#creationForm = new CreationForm({
-      onClick: this.#handleNewPointButtonClick
-    });
-    render(this.#creationForm, this.#tripMainElement);
+  #renderErrorMessage() {
+    render(this.#errorComponent, this.#tripEventsElement);
   }
-
-  #handleNewPointButtonClose = () => {
-    this.#creationForm.element.disabled = false;
-  };
-
-
-  #handleNewPointButtonClick = () => {
-    this.createPoint();
-    this.#creationForm.element.disabled = true;
-  };
-
 
   #onSortTypeChange = (sortType) => {
     if (this.#currentSortType === sortType) {
@@ -148,9 +169,9 @@ export default class Presenter {
   #renderSortPanel() {
     this.#sortPanel = new SortPanel({
       onSortTypeChange: this.#onSortTypeChange,
+      currentSortType: this.#currentSortType,
     });
-    render(this.#sortPanel, this.#tripEventsElement);
-
+    render(this.#sortPanel, this.#tripEventsElement, RenderPosition.AFTERBEGIN);
   }
 
   #clearPoinsList(resetSortType = false) {
@@ -158,10 +179,9 @@ export default class Presenter {
     this.#pointPresenterMap.forEach((presenter) => presenter.destroy());
     this.#pointPresenterMap.clear();
 
-    // remove(this.#sortPanel);
+    remove(this.#sortPanel);
     remove(this.#loadingComponent);
     remove(this.#listMessageComponent);
-
     if (resetSortType) {
       this.#currentSortType = SORT_TYPE.DAY;
     }
@@ -182,7 +202,7 @@ export default class Presenter {
   }
 
   #renderWaypoint = (point) => {
-    const pointPresenter = new PresenterWaypoint({
+    this.#pointPresenter = new PresenterWaypoint({
       pointsModel: this.#pointsModel,
       pointListContainer: this.#waypointList.element,
       destinationCurrent: this.#pointsModel.getDestinationId(point.destination),
@@ -191,8 +211,8 @@ export default class Presenter {
       onPointChange: this.#handleViewAction,
       onModeChange: this.#onModeChange,
     });
-    pointPresenter.init(point);
-    this.#pointPresenterMap.set(point.id, pointPresenter);
+    this.#pointPresenter.init(point);
+    this.#pointPresenterMap.set(point.id, this.#pointPresenter);
   };
 
 
@@ -200,18 +220,24 @@ export default class Presenter {
     render(this.#waypointList, this.#tripEventsElement);
 
     if (this.#isLoading) {
-
       this.#renderLoadingMessage();
       return;
     }
+
+    if (!this.points.length && !this.#pointsModel.offers.length && !this.#pointsModel.destinations.length) {
+      this.#renderErrorMessage();
+      return;
+    }
+
+    this.#renderSortPanel();
 
     if (this.points.length) {
       remove(this.#loadingComponent);
       remove(this.#listMessageComponent);
       this.#renderWaypoints();
     } else {
-      remove(this.#sortPanel);
       this.#listEmptyMessage();
+      remove(this.#sortPanel);
     }
   };
 
@@ -222,8 +248,6 @@ export default class Presenter {
   };
 
   init() {
-    this.#renderCreationform();
-    this.#renderSortPanel();
     this.#renderTripInfo();
     this.#renderWaypointList();
   }

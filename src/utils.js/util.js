@@ -7,9 +7,9 @@ const getRandomInteger = (a = 0, b = 1) => {
   return Math.floor(lower + Math.random() * (upper - lower + 1));
 };
 
-const getRandomArrayElement = (elements) => elements[getRandomInteger(0, elements.length - 1)];
+// const getRandomArrayElement = (elements) => elements[getRandomInteger(0, elements.length - 1)];
 
-const getRandomInt = (max) => Math.round(Math.random() * max);
+// const getRandomInt = (max) => Math.round(Math.random() * max);
 
 const generateDates = () => {
   const maxGap = 14;
@@ -62,7 +62,7 @@ const getDuration = (beginISO, endISO) => {
 
 const isEscapeKey = (evt) => evt.key === 'Escape';
 
-const dataChange = (item, prop) => ({ ...item, ...prop });
+// const dataChange = (item, prop) => ({ ...item, ...prop });
 
 const PRICE_FIELD_PATTERN = /\D+/;
 
@@ -73,4 +73,4 @@ const validatePriceField = (value) => {
   return +value;
 };
 
-export { getRandomInteger, getRandomArrayElement, getRandomInt, generateDates, dataChange, getDuration, isEscapeKey, validatePriceField };
+export { getRandomInteger, generateDates, getDuration, isEscapeKey, validatePriceField };
