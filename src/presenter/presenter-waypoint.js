@@ -9,9 +9,8 @@ const Mode = {
 };
 
 export default class PresenterWaypoint {
-  #destinationsModel = null;
-  #offersModel = null;
-  #destinationsModelAll = [];
+  #destinations = null;
+  #offers = null;
   #pointListContainer = null;
   #eventView = null;
   #eventEditView = null;
@@ -19,14 +18,19 @@ export default class PresenterWaypoint {
   #onPointChange = null;
   #mode = Mode.DEFAULT;
   #onModeChange = null;
+  #offersCurrent = null;
+  #destinationCurrent = null;
+  #pointsModel = null;
 
-  constructor({ pointListContainer, destinationsModel, offersModel, onPointChange, onModeChange }) {
+  constructor({ pointListContainer, onPointChange, onModeChange, offersCurrent, destinationCurrent, pointsModel }) {
     this.#pointListContainer = pointListContainer;
-    this.#destinationsModel = destinationsModel;
-    this.#destinationsModelAll = [...this.#destinationsModel.destinationAll];
-    this.#offersModel = offersModel;
+    this.#destinations = pointsModel.destinations;
+    this.#destinationCurrent = destinationCurrent;
+    this.#offers = pointsModel.offers;
     this.#onPointChange = onPointChange;
     this.#onModeChange = onModeChange;
+    this.#offersCurrent = offersCurrent;
+    this.#pointsModel = pointsModel;
   }
 
   init(point) {
@@ -38,18 +42,23 @@ export default class PresenterWaypoint {
     this.#eventView = new Waypoint({
       waypoint: point,
       onClickButtonRollup: this.#onClickButtonRollup,
-      destinationsModel: this.#destinationsModel,
+      destinations: this.#destinations,
+      destinationCurrent: this.#destinationCurrent,
       onFavoriteClick: this.#onFavoriteClick,
-      offerCurrent: this.#offersModel.getCurrentOffer(point.type),
+      offerCurrent: this.#offersCurrent,
+      offers: this.#offers
     });
 
     this.#eventEditView = new WaypointEdit({
       waypoint: point,
+      pointsModel: this.#pointsModel,
       onEditFormRollupButtonClick: this.#onEditFormRollupButtonClick,
-      destinationsModel: this.#destinationsModel,
+      destinations: this.#destinations,
       onEditFormSave: this.#onEditFormSave,
-      offersModel: this.#offersModel,
+      offers: this.#offers,
+      offerCurrent: this.#offersCurrent,
       onDeleteForm: this.#handleEditFormDeleteButtonClick
+
     });
 
     if ((prevEventViewComponent === null) | (prevEventEditViewComponent === null)) {
@@ -135,4 +144,39 @@ export default class PresenterWaypoint {
       { ...this.#point, isFavorite: !this.#point.isFavorite }
     );
   };
+
+  setSaving() {
+    if (this.#mode === Mode.EDITING) {
+      this.#eventEditView.updateElement({
+        isDisabled: true,
+        isSaving: true
+      });
+    }
+  }
+
+  setDeleting() {
+    if (this.#mode === Mode.EDITING) {
+      this.#eventEditView.updateElement({
+        isDisabled: true,
+        isDeleting: true
+      });
+    }
+  }
+
+  setAborting() {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#eventView.shake();
+      return;
+    }
+
+    const resetFormState = () => {
+      this.#eventEditView.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#eventEditView.shake(resetFormState);
+  }
 }

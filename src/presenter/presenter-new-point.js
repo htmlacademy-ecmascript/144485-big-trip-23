@@ -4,25 +4,18 @@ import { isEscapeKey } from '../utils.js/util.js';
 import { UpdateType, UserAction } from '../utils.js/const.js';
 
 export default class PresenterNewPoint {
-  #offersModel = null;
-  #destinationsModel = null;
-
-  #containerList = null;
-
   #pointListContainer = null;
   #onPointChange = null;
   #handleDestroy = null;
+  #pointsModel = null;
 
   #pointEditComponent = null;
 
-  constructor({ offersModel, destinationsModel, containerList, onPointChange, handleDestroy }) {
-    this.#offersModel = offersModel;
-    this.#destinationsModel = destinationsModel;
+  constructor({ containerList, onPointChange, pointsModel, onDestroy }) {
+    this.#pointsModel = pointsModel;
     this.#pointListContainer = containerList;
     this.#onPointChange = onPointChange;
-    this.#handleDestroy = handleDestroy;
-
-
+    this.#handleDestroy = onDestroy;
   }
 
   init() {
@@ -31,8 +24,9 @@ export default class PresenterNewPoint {
     }
 
     this.#pointEditComponent = new WaypointEdit({
-      offersModel: this.#offersModel,
-      destinationsModel: this.#destinationsModel,
+      pointsModel: this.#pointsModel,
+      offers: this.#pointsModel.offers,
+      destinations: this.#pointsModel.destinations,
       onEditFormSave: this.#handleFormSubmit,
       onDeleteForm: this.#handleFormCancelButtonClick
     });
@@ -55,6 +49,25 @@ export default class PresenterNewPoint {
     document.removeEventListener('keydown', this.#escapeKeydownHandler);
   }
 
+  setSaving() {
+    this.#pointEditComponent.updateElement({
+      isDisabled: true,
+      isSaving: true
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#pointEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#pointEditComponent.shake(resetFormState);
+  }
+
   #escapeKeydownHandler = (evt) => {
     if (isEscapeKey(evt)) {
       evt.preventDefault();
@@ -66,7 +79,7 @@ export default class PresenterNewPoint {
     this.#onPointChange(
       UserAction.ADD_POINT,
       UpdateType.MINOR,
-      point
+      point,
     );
     this.destroy();
   };
