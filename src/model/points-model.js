@@ -1,6 +1,6 @@
 // import { MOCKED_EVENTS } from '../mock/trip-event.js';
 import Observable from '../framework/observable.js';
-import { UpdateType } from '../utils.js/const.js';
+import { UpdateType } from '../utils/const.js';
 
 export default class PointsModel extends Observable {
   #pointsApiService = null;
@@ -13,7 +13,7 @@ export default class PointsModel extends Observable {
     this.#pointsApiService = pointsApiService;
   }
 
-  get event() {
+  get events() {
     return this.#points;
   }
 
@@ -127,6 +127,10 @@ export default class PointsModel extends Observable {
 
   getDestinationId(id) {
     return this.destinations.find((item) => item.id === id);
+  }
+
+  getDestinationName(name) {
+    return this.#destinations.find((item) => item.name === name);
   }
 }
 

@@ -3,6 +3,7 @@ import PointsModel from './model/points-model.js';
 import FilterModel from './model/filter-model.js';
 import FilterPresenter from './presenter/presenter-filter.js';
 import PointsApiService from './points-api-service.js';
+import PresenterInfoPanel from './presenter/presenter-info-panel.js';
 import CreationForm from './view/creation-form.js';
 import { render } from './framework/render.js';
 
@@ -35,6 +36,12 @@ const newPointButtonComponent = new CreationForm({
   onClick: handleNewPointButtonClick
 });
 
+const presenterInfoPanel = new PresenterInfoPanel({
+  tripInfoContainer: tripMainElement,
+  pointsModel
+});
+
+
 function handleNewPointButtonClick() {
   presenter.createPoint();
   newPointButtonComponent.element.disabled = true;
@@ -55,3 +62,4 @@ pointsModel.init()
   .finally(() => {
     newPointButtonComponent.element.disabled = false;
   });
+presenterInfoPanel.init();

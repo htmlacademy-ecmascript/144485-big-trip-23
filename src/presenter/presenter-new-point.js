@@ -1,7 +1,7 @@
 import WaypointEdit from '../view/waypoint-edit.js';
 import { remove, render, RenderPosition } from '../framework/render.js';
-import { isEscapeKey } from '../utils.js/util.js';
-import { UpdateType, UserAction } from '../utils.js/const.js';
+import { isEscapeKey } from '../utils/util.js';
+import { UpdateType, UserAction } from '../utils/const.js';
 
 export default class PresenterNewPoint {
   #pointListContainer = null;
@@ -81,7 +81,6 @@ export default class PresenterNewPoint {
       UpdateType.MINOR,
       point,
     );
-    this.destroy();
   };
 
   #handleFormCancelButtonClick = () => {

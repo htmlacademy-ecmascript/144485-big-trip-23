@@ -1,6 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { appDay } from '../utils.js/day.js';
-import { getDuration } from '../utils.js/util.js';
+import { appDay } from '../utils/day.js';
+import { getDuration } from '../utils/util.js';
 
 const createWaypoint = (waypoint, destinationCurrent, offers) => {
   const { basePrice: price, dateFrom: ISOFrom, dateTo: ISOTo, isFavorite, type, offers: offersPoint } = waypoint;
@@ -29,7 +29,6 @@ const createWaypoint = (waypoint, destinationCurrent, offers) => {
   };
 
   const pointTypeList = createOffersTemplate();
-
 
   return `<li class="trip-events__item">
 <div class="event">

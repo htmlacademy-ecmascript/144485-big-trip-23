@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { SORT_TYPE } from '../utils.js/sort.js';
+import { SORT_TYPE } from '../utils/sort.js';
 
 const createSortPanel = (currentSortType) =>
   `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">

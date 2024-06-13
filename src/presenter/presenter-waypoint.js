@@ -1,7 +1,7 @@
 import { render, replace, remove } from '../framework/render.js';
 import Waypoint from '../view/waypoint.js';
 import WaypointEdit from '../view/waypoint-edit.js';
-import { UserAction, UpdateType } from '../utils.js/const.js';
+import { UserAction, UpdateType } from '../utils/const.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -126,7 +126,6 @@ export default class PresenterWaypoint {
       UpdateType.MINOR,
       point
     );
-    this.#replaceFormToPoint();
   };
 
   #handleEditFormDeleteButtonClick = (point) => {

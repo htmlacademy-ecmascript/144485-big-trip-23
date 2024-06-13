@@ -1,9 +1,9 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { validatePriceField } from '../utils.js/util.js';
+import { validatePriceField } from '../utils/util.js';
 
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
-import { appDay } from '../utils.js/day.js';
+import { appDay } from '../utils/day.js';
 
 const DefaultPointData = {
   DATE_FROM: appDay().toISOString(),
@@ -12,7 +12,7 @@ const DefaultPointData = {
 };
 
 const BLANK_POINT = {
-  basePrice: '1',
+  basePrice: '',
   dateFrom: DefaultPointData.DATE_FROM,
   dateTo: DefaultPointData.DATE_TO,
   destination: '',
@@ -151,7 +151,7 @@ const createWaypointForm = (waypoint, destinations, offers, pointsModel) => {
         <span class="visually-hidden">Price</span>
         &euro;
       </label>
-      <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice ? basePrice : 1}" required min="1">
+      <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice ? basePrice : ''}" required min="1">
     </div>
     <button class="event__save-btn  btn  btn--blue" type="submit" ${isSubmitDisabled || isDisabled ? '' : 'disabled'}>${submitButtonText}</button>
     <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${resetButtonText}</button>
@@ -176,6 +176,7 @@ export default class WaypointEdit extends AbstractStatefulView {
   #datepickerTo = null;
   #onEditFormSave = null;
   #pointsModel = null;
+
   constructor({ waypoint = BLANK_POINT, onEditFormSave, onEditFormRollupButtonClick, onDeleteForm, offers, pointsModel, destinations }) {
     super();
     this._setState(WaypointEdit.parsePointToState(waypoint));
@@ -190,7 +191,7 @@ export default class WaypointEdit extends AbstractStatefulView {
   }
 
   get template() {
-    return createWaypointForm(this._state, this.#destinations, this.#offers, this.#pointsModel);
+    return createWaypointForm(this._state, this.#destinations, this.#offers, this.#pointsModel, this.isDestinationText);
   }
 
   reset(waypoint) {
@@ -217,12 +218,16 @@ export default class WaypointEdit extends AbstractStatefulView {
 
   #eventDestinationToggleHandler = (evt) => {
     evt.preventDefault();
-    if (evt.target.value !== '') {
-      const selectedDestination = this.#destinations.find((destination) => evt.target.value === destination.name);
-      this.updateElement({
-        destination: selectedDestination.id,
-      });
+    evt.preventDefault();
+
+    let selectedDestination = this.#destinations.find((destination) => evt.target.value === destination.name);
+    if (!selectedDestination) {
+      selectedDestination = '';
     }
+
+    this.updateElement({
+      destination: selectedDestination.id
+    });
   };
 
   #priceInputHandler = (evt) => {

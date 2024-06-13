@@ -1,6 +1,5 @@
 import { appDay } from './day.js';
 
-
 const isFutureEvent = (dateFrom) => appDay(dateFrom).isAfter(appDay());
 const isPresentEvent = (dateFrom, dateTo) => appDay(dateFrom).isBefore(appDay()) && appDay(dateTo).isAfter(appDay());
 const isPastEvent = (dateTo) => appDay(dateTo).isBefore(appDay());
@@ -25,6 +24,5 @@ export const tripMessagesEmpty = {
   [FilterType.PRESENT]: 'There are no present events now',
   [FilterType.PAST]: 'There are no past events now',
 };
-
 
 export { filter, FilterType };
