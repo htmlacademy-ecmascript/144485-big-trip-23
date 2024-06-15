@@ -8,7 +8,6 @@ export default class PresenterNewPoint {
   #onPointChange = null;
   #handleDestroy = null;
   #pointsModel = null;
-
   #pointEditComponent = null;
 
   constructor({ containerList, onPointChange, pointsModel, onDestroy }) {
@@ -28,7 +27,7 @@ export default class PresenterNewPoint {
       offers: this.#pointsModel.offers,
       destinations: this.#pointsModel.destinations,
       onEditFormSave: this.#handleFormSubmit,
-      onDeleteForm: this.#handleFormCancelButtonClick
+      onDeleteForm: this.#handleFormCancelButtonClick,
     });
 
     render(this.#pointEditComponent, this.#pointListContainer, RenderPosition.AFTERBEGIN);
@@ -52,7 +51,7 @@ export default class PresenterNewPoint {
   setSaving() {
     this.#pointEditComponent.updateElement({
       isDisabled: true,
-      isSaving: true
+      isSaving: true,
     });
   }
 
@@ -76,16 +75,10 @@ export default class PresenterNewPoint {
   };
 
   #handleFormSubmit = (point) => {
-    this.#onPointChange(
-      UserAction.ADD_POINT,
-      UpdateType.MINOR,
-      point,
-    );
+    this.#onPointChange(UserAction.ADD_POINT, UpdateType.MINOR, point);
   };
 
   #handleFormCancelButtonClick = () => {
     this.destroy();
   };
-
-
 }

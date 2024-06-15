@@ -40,7 +40,6 @@ export default class PointsModel extends Observable {
       this.#destinations = [];
     }
 
-
     this._notify(UpdateType.INIT);
   }
 
@@ -54,11 +53,7 @@ export default class PointsModel extends Observable {
       const response = await this.#pointsApiService.updatePoint(update);
       const updatedPoint = this.#adaptToClient(response);
 
-      this.#points = [
-        ...this.#points.slice(0, index),
-        updatedPoint,
-        ...this.#points.slice(index + 1)
-      ];
+      this.#points = [...this.#points.slice(0, index), updatedPoint, ...this.#points.slice(index + 1)];
 
       this._notify(updateType, updatedPoint);
     } catch (err) {
@@ -71,16 +66,12 @@ export default class PointsModel extends Observable {
       const response = await this.#pointsApiService.addPoint(update);
       const newPoint = this.#adaptToClient(response);
 
-      this.#points = [
-        newPoint,
-        ...this.#points
-      ];
+      this.#points = [newPoint, ...this.#points];
 
       this._notify(updateType, newPoint);
     } catch (err) {
       throw new Error('Can\'t add point');
     }
-
   }
 
   async deletePoint(updateType, update) {
@@ -91,10 +82,7 @@ export default class PointsModel extends Observable {
 
     try {
       await this.#pointsApiService.deletePoint(update);
-      this.#points = [
-        ...this.#points.slice(0, index),
-        ...this.#points.slice(index + 1)
-      ];
+      this.#points = [...this.#points.slice(0, index), ...this.#points.slice(index + 1)];
 
       this._notify(updateType);
     } catch (err) {
@@ -108,7 +96,7 @@ export default class PointsModel extends Observable {
       basePrice: point['base_price'],
       dateFrom: new Date(point['date_from']),
       dateTo: new Date(point['date_to']),
-      isFavorite: point['is_favorite']
+      isFavorite: point['is_favorite'],
     };
 
     delete adaptedPoint['base_price'];
@@ -133,4 +121,3 @@ export default class PointsModel extends Observable {
     return this.#destinations.find((item) => item.name === name);
   }
 }
-

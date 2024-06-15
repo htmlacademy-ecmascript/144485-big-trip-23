@@ -6,7 +6,6 @@ const MULTIPLE_SYMBOL = '...';
 const MAX_CITIES_VISIBLE_COUNT = 3;
 
 const createTripInfoTemplate = (points, offers, destinations) => {
-
   const createTripRouteTemplate = () => {
     const routeCities = [];
     points.forEach((point) => {
@@ -43,7 +42,6 @@ const createTripInfoTemplate = (points, offers, destinations) => {
   };
 
   const createTripInfoDatesTemplate = () => {
-
     if (!points.length) {
       return '';
     }
@@ -61,7 +59,6 @@ const createTripInfoTemplate = (points, offers, destinations) => {
   };
 
   const createTripTotalPriceTemplate = () => {
-
     let totalPrice = 0;
     points.forEach((point) => {
       totalPrice += +point.basePrice;
@@ -105,5 +102,4 @@ export default class TripInfoView extends AbstractView {
   get template() {
     return createTripInfoTemplate(this.#points, this.#offers, this.#destinations);
   }
-
 }

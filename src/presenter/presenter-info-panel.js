@@ -5,7 +5,6 @@ import { sortByDay } from '../utils/sort.js';
 export default class PresenterInfoPanel {
   #tripInfoContainer = null;
   #pointsModel = null;
-
   #tripInfoComponent = null;
 
   constructor({ tripInfoContainer, pointsModel }) {

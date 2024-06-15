@@ -58,7 +58,6 @@ const getDuration = (beginISO, endISO) => {
 
 const isEscapeKey = (evt) => evt.key === 'Escape';
 
-
 const PRICE_FIELD_PATTERN = /\D+/;
 
 const validatePriceField = (value) => {
