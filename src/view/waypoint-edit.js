@@ -1,5 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { validatePriceField } from '../utils/util.js';
+// import { validatePriceField } from '../utils/util.js';
 
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
@@ -12,7 +12,7 @@ const DefaultPointData = {
 };
 
 const BLANK_POINT = {
-  basePrice: '',
+  basePrice: '0',
   destination: '',
   isFavorite: false,
   offers: [],
@@ -129,7 +129,7 @@ const createWaypointForm = (waypoint, destinations, offers, pointsModel) => {
 
     <div class="event__field-group  event__field-group--destination">
       <label class="event__label  event__type-output" for="event-destination-${type}">${type}</label>
-      <input class="event__input  event__input--destination" id="event-destination-${type}" type="text" name="event-destination" value="${destinationCurrent ? destinationCurrent.name : ''}" list="destination-list-1">
+      <input class="event__input  event__input--destination" id="event-destination-${type.toLowerCase()}" type="text" name="event-destination" value="${destinationCurrent ? destinationCurrent.name : ''}" list="destination-list-1">
       <datalist id="destination-list-1">
       ${cityList}
       </datalist>
@@ -229,9 +229,8 @@ export default class WaypointEdit extends AbstractStatefulView {
   #priceInputHandler = (evt) => {
     evt.preventDefault();
 
-    this.updateElement({
-      basePrice: validatePriceField(evt.target.value)
-    });
+    this._state.basePrice = evt.target.value;
+
   };
 
   #eventTypeToggleHandler = (evt) => {

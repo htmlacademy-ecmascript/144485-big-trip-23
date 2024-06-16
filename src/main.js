@@ -18,10 +18,17 @@ const pointsModel = new PointsModel({
 });
 const filterModel = new FilterModel();
 
+const newPointButtonComponent = new CreationForm({
+  onClick: handleNewPointButtonClick,
+});
+
 const presenter = new PresenterMain({
   pointsModel,
   filterModel,
   onNewPointDestroy: handleNewPointButtonClose,
+  handleNewPointButtonDis: () => {
+    handleNewPointButtonDisabled();
+  }
 });
 
 const filterPresenter = new FilterPresenter({
@@ -30,14 +37,15 @@ const filterPresenter = new FilterPresenter({
   pointsModel,
 });
 
-const newPointButtonComponent = new CreationForm({
-  onClick: handleNewPointButtonClick,
-});
 
 const presenterInfoPanel = new PresenterInfoPanel({
   tripInfoContainer: tripMainElement,
   pointsModel,
 });
+
+function handleNewPointButtonDisabled() {
+  newPointButtonComponent.element.disabled = true;
+}
 
 function handleNewPointButtonClick() {
   presenter.createPoint();

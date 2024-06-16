@@ -32,20 +32,21 @@ const createSortPanel = (currentSortType) =>
 export default class SortPanel extends AbstractView {
   #onSortTypeChange = null;
   #currentSortType = null;
+
   constructor({ currentSortType, onSortTypeChange }) {
     super();
 
     this.#currentSortType = currentSortType;
     this.#onSortTypeChange = onSortTypeChange;
 
-    this.element.addEventListener('click', this.#onSortTypeChangeHandler);
+    this.element.addEventListener('click', this.#SortTypeChangeHandler);
   }
 
   get template() {
     return createSortPanel(this.#currentSortType);
   }
 
-  #onSortTypeChangeHandler = (evt) => {
+  #SortTypeChangeHandler = (evt) => {
     evt.preventDefault();
     if (evt.target.tagName !== 'LABEL') {
       return;

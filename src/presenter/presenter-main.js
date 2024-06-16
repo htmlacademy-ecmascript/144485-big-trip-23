@@ -12,6 +12,7 @@ import { FilterType } from '../utils/filter.js';
 import LoadingView from '../view/loading-view.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import ErrorView from '../view/error-view.js';
+// import CreationForm from '../view/creation-form.js';
 
 const TimeLimit = {
   LOWER_LIMIT: 350,
@@ -38,11 +39,14 @@ export default class PresenterMain {
     upperLimit: TimeLimit.UPPER_LIMIT,
   });
 
+  #sortRendered = false;
+
   #errorComponent = new ErrorView();
 
   #pointPresenter = null;
+  #handleNewPointButtonDidsabled = null;
 
-  constructor({ pointsModel, filterModel, onNewPointDestroy }) {
+  constructor({ pointsModel, filterModel, onNewPointDestroy, handleNewPointButtonDis }) {
     this.#pointsModel = pointsModel;
     this.#filterModel = filterModel;
     this.#offers = pointsModel.offers;
@@ -52,6 +56,7 @@ export default class PresenterMain {
     this.#tripEventsElement = this.pageMainElement.querySelector('.trip-events');
     this.#pointsModel.addObserver(this.#handlerModelEvent);
     this.#filterModel.addObserver(this.#handlerModelEvent);
+    this.#handleNewPointButtonDidsabled = handleNewPointButtonDis;
 
     this.#presenterNewPoint = new PresenterNewPoint({
       pointsModel: this.#pointsModel,
@@ -60,7 +65,10 @@ export default class PresenterMain {
       containerList: this.#waypointList.element,
       onPointChange: this.#handleViewAction,
       onModeChange: this.#onModeChange,
-      onDestroy: onNewPointDestroy,
+      onDestroy: () => {
+        onNewPointDestroy();
+        this.#renderWaypointList();
+      }
     });
   }
 
@@ -82,6 +90,7 @@ export default class PresenterMain {
   createPoint() {
     this.#currentSortType = SORT_TYPE.DAY;
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    remove(this.#listMessageComponent);
     this.#presenterNewPoint.init();
   }
 
@@ -158,11 +167,15 @@ export default class PresenterMain {
   };
 
   #renderSortPanel() {
+    if (this.#sortRendered) {
+      return;
+    }
     this.#sortPanel = new SortPanel({
       onSortTypeChange: this.#onSortTypeChange,
       currentSortType: this.#currentSortType,
     });
     render(this.#sortPanel, this.#tripEventsElement, RenderPosition.AFTERBEGIN);
+    this.#sortRendered = true;
   }
 
   #listEmptyMessage() {
@@ -176,6 +189,7 @@ export default class PresenterMain {
     this.#pointPresenterMap.clear();
 
     remove(this.#sortPanel);
+    this.#sortRendered = false;
     remove(this.#loadingComponent);
     remove(this.#listMessageComponent);
     if (resetSortType) {
@@ -211,13 +225,16 @@ export default class PresenterMain {
 
     if (!this.points.length && !this.#pointsModel.offers.length && !this.#pointsModel.destinations.length) {
       this.#renderErrorMessage();
+      this.#handleNewPointButtonDidsabled();
+      remove(this.#sortPanel);
       return;
     }
 
-    this.#renderSortPanel();
 
     if (this.points.length) {
+      this.#renderSortPanel();
       remove(this.#loadingComponent);
+      this.#currentSortType = SORT_TYPE.DAY;
       this.#renderWaypoints();
     } else {
       this.#listEmptyMessage();

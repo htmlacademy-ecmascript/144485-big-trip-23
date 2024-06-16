@@ -55,7 +55,7 @@ const createTripInfoTemplate = (points, offers, destinations) => {
       endDateFormat = 'DD';
     }
 
-    return `<p class="trip-info__dates">${startDate.format(DATE_FORMAT)}&nbsp;&mdash;&nbsp;${endDate.format(endDateFormat)}</p>`;
+    return `<p class="trip-info__dates">${startDate.format(DATE_FORMAT).toLowerCase()}&nbsp;&mdash;&nbsp;${endDate.format(endDateFormat).toLowerCase()}</p>`;
   };
 
   const createTripTotalPriceTemplate = () => {
