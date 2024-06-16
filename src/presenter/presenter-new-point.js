@@ -1,14 +1,13 @@
 import WaypointEdit from '../view/waypoint-edit.js';
 import { remove, render, RenderPosition } from '../framework/render.js';
-import { isEscapeKey } from '../utils.js/util.js';
-import { UpdateType, UserAction } from '../utils.js/const.js';
+import { isEscapeKey } from '../utils/util.js';
+import { UpdateType, UserAction } from '../utils/const.js';
 
 export default class PresenterNewPoint {
   #pointListContainer = null;
   #onPointChange = null;
   #handleDestroy = null;
   #pointsModel = null;
-
   #pointEditComponent = null;
 
   constructor({ containerList, onPointChange, pointsModel, onDestroy }) {
@@ -28,7 +27,7 @@ export default class PresenterNewPoint {
       offers: this.#pointsModel.offers,
       destinations: this.#pointsModel.destinations,
       onEditFormSave: this.#handleFormSubmit,
-      onDeleteForm: this.#handleFormCancelButtonClick
+      onDeleteForm: this.#handleFormCancelButtonClick,
     });
 
     render(this.#pointEditComponent, this.#pointListContainer, RenderPosition.AFTERBEGIN);
@@ -52,7 +51,7 @@ export default class PresenterNewPoint {
   setSaving() {
     this.#pointEditComponent.updateElement({
       isDisabled: true,
-      isSaving: true
+      isSaving: true,
     });
   }
 
@@ -76,17 +75,10 @@ export default class PresenterNewPoint {
   };
 
   #handleFormSubmit = (point) => {
-    this.#onPointChange(
-      UserAction.ADD_POINT,
-      UpdateType.MINOR,
-      point,
-    );
-    this.destroy();
+    this.#onPointChange(UserAction.ADD_POINT, UpdateType.MINOR, point);
   };
 
   #handleFormCancelButtonClick = () => {
     this.destroy();
   };
-
-
 }

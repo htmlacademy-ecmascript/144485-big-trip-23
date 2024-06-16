@@ -1,7 +1,7 @@
 import { render, replace, remove } from '../framework/render.js';
 import Waypoint from '../view/waypoint.js';
 import WaypointEdit from '../view/waypoint-edit.js';
-import { UserAction, UpdateType } from '../utils.js/const.js';
+import { UserAction, UpdateType } from '../utils/const.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -46,7 +46,7 @@ export default class PresenterWaypoint {
       destinationCurrent: this.#destinationCurrent,
       onFavoriteClick: this.#onFavoriteClick,
       offerCurrent: this.#offersCurrent,
-      offers: this.#offers
+      offers: this.#offers,
     });
 
     this.#eventEditView = new WaypointEdit({
@@ -57,8 +57,7 @@ export default class PresenterWaypoint {
       onEditFormSave: this.#onEditFormSave,
       offers: this.#offers,
       offerCurrent: this.#offersCurrent,
-      onDeleteForm: this.#handleEditFormDeleteButtonClick
-
+      onDeleteForm: this.#handleEditFormDeleteButtonClick,
     });
 
     if ((prevEventViewComponent === null) | (prevEventEditViewComponent === null)) {
@@ -121,35 +120,22 @@ export default class PresenterWaypoint {
   };
 
   #onEditFormSave = (point) => {
-    this.#onPointChange(
-      UserAction.UPDATE_POINT,
-      UpdateType.MINOR,
-      point
-    );
-    this.#replaceFormToPoint();
+    this.#onPointChange(UserAction.UPDATE_POINT, UpdateType.MINOR, point);
   };
 
   #handleEditFormDeleteButtonClick = (point) => {
-    this.#onPointChange(
-      UserAction.DELETE_POINT,
-      UpdateType.MINOR,
-      point
-    );
+    this.#onPointChange(UserAction.DELETE_POINT, UpdateType.MINOR, point);
   };
 
   #onFavoriteClick = () => {
-    this.#onPointChange(
-      UserAction.UPDATE_POINT,
-      UpdateType.PATCH,
-      { ...this.#point, isFavorite: !this.#point.isFavorite }
-    );
+    this.#onPointChange(UserAction.UPDATE_POINT, UpdateType.PATCH, { ...this.#point, isFavorite: !this.#point.isFavorite });
   };
 
   setSaving() {
     if (this.#mode === Mode.EDITING) {
       this.#eventEditView.updateElement({
         isDisabled: true,
-        isSaving: true
+        isSaving: true,
       });
     }
   }
@@ -158,7 +144,7 @@ export default class PresenterWaypoint {
     if (this.#mode === Mode.EDITING) {
       this.#eventEditView.updateElement({
         isDisabled: true,
-        isDeleting: true
+        isDeleting: true,
       });
     }
   }

@@ -1,32 +1,27 @@
 import { render, RenderPosition, remove } from '../framework/render.js';
 import SortPanel from '../view/sort-panel.js';
-import TripInfo from '../view/trip-info.js';
 import WaypointList from '../view/waypoint-list.js';
 import PresenterWaypoint from './presenter-waypoint.js';
 import ListEmpty from '../view/list-empty.js';
 import PresenterNewPoint from './presenter-new-point.js';
-import { SORT_TYPE } from '../utils.js/sort.js';
-import { sortByDay, sortByTime, sortByPrice } from '../utils.js/sort.js';
-import { UserAction, UpdateType } from '../utils.js/const.js';
-import { filter } from '../utils.js/filter.js';
-import { FilterType } from '../utils.js/filter.js';
+import { SORT_TYPE } from '../utils/sort.js';
+import { sortByDay, sortByTime, sortByPrice } from '../utils/sort.js';
+import { UserAction, UpdateType } from '../utils/const.js';
+import { filter } from '../utils/filter.js';
+import { FilterType } from '../utils/filter.js';
 import LoadingView from '../view/loading-view.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import ErrorView from '../view/error-view.js';
 
 const TimeLimit = {
   LOWER_LIMIT: 350,
-  UPPER_LIMIT: 1000
+  UPPER_LIMIT: 1000,
 };
 
-
-export default class Presenter {
-  #creationForm = null;
+export default class PresenterMain {
   #sortPanel = null;
-  #tripInfo = new TripInfo();
+  #tripInfo = null;
   #waypointList = new WaypointList();
-  #listEmpty = null;
-  #destinations = null;
   #pointsModel = null;
   #pointPresenterMap = new Map();
   #currentSortType = SORT_TYPE.DAY;
@@ -40,13 +35,12 @@ export default class Presenter {
   #loadingComponent = new LoadingView();
   #uiBlocker = new UiBlocker({
     lowerLimit: TimeLimit.LOWER_LIMIT,
-    upperLimit: TimeLimit.UPPER_LIMIT
+    upperLimit: TimeLimit.UPPER_LIMIT,
   });
 
   #errorComponent = new ErrorView();
 
   #pointPresenter = null;
-
 
   constructor({ pointsModel, filterModel, onNewPointDestroy }) {
     this.#pointsModel = pointsModel;
@@ -66,13 +60,13 @@ export default class Presenter {
       containerList: this.#waypointList.element,
       onPointChange: this.#handleViewAction,
       onModeChange: this.#onModeChange,
-      onDestroy: onNewPointDestroy
+      onDestroy: onNewPointDestroy,
     });
   }
 
   get points() {
     const currentFilterType = this.#filterModel.filter;
-    const points = this.#pointsModel.event;
+    const points = this.#pointsModel.events;
     const filteredPoints = filter[currentFilterType](points);
     switch (this.#currentSortType) {
       case SORT_TYPE.PRICE:
@@ -85,13 +79,11 @@ export default class Presenter {
     return filteredPoints;
   }
 
-
   createPoint() {
     this.#currentSortType = SORT_TYPE.DAY;
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this.#presenterNewPoint.init();
   }
-
 
   #handleViewAction = async (actionType, updateType, update) => {
     this.#uiBlocker.block();
@@ -106,11 +98,12 @@ export default class Presenter {
         }
         break;
       case UserAction.ADD_POINT:
-        this.#presenterNewPoint.setSaving();
         try {
+          this.#presenterNewPoint.setSaving();
+
           await this.#pointsModel.addPoint(updateType, update);
         } catch (err) {
-          this.#pointPresenter.setAborting();
+          this.#presenterNewPoint.setAborting();
         }
         break;
       case UserAction.DELETE_POINT:
@@ -124,7 +117,6 @@ export default class Presenter {
     }
 
     this.#uiBlocker.unblock();
-
   };
 
   #handlerModelEvent = (updateType, data) => {
@@ -146,7 +138,6 @@ export default class Presenter {
         this.#renderWaypointList();
         break;
     }
-
   };
 
   #renderLoadingMessage() {
@@ -174,6 +165,11 @@ export default class Presenter {
     render(this.#sortPanel, this.#tripEventsElement, RenderPosition.AFTERBEGIN);
   }
 
+  #listEmptyMessage() {
+    this.#listMessageComponent = new ListEmpty(this.#filterModel.filter);
+    render(this.#listMessageComponent, this.#tripEventsElement);
+  }
+
   #clearPoinsList(resetSortType = false) {
     this.#presenterNewPoint.destroy();
     this.#pointPresenterMap.forEach((presenter) => presenter.destroy());
@@ -185,16 +181,6 @@ export default class Presenter {
     if (resetSortType) {
       this.#currentSortType = SORT_TYPE.DAY;
     }
-  }
-
-  #renderTripInfo() {
-    render(this.#tripInfo, this.#tripMainElement, RenderPosition.AFTERBEGIN);
-  }
-
-  #listEmptyMessage() {
-    this.#listMessageComponent = new ListEmpty(this.#filterModel.filter);
-
-    render(this.#listMessageComponent, this.#tripEventsElement);
   }
 
   #renderWaypoints() {
@@ -215,7 +201,6 @@ export default class Presenter {
     this.#pointPresenterMap.set(point.id, this.#pointPresenter);
   };
 
-
   #renderWaypointList = () => {
     render(this.#waypointList, this.#tripEventsElement);
 
@@ -233,7 +218,6 @@ export default class Presenter {
 
     if (this.points.length) {
       remove(this.#loadingComponent);
-      remove(this.#listMessageComponent);
       this.#renderWaypoints();
     } else {
       this.#listEmptyMessage();
@@ -241,14 +225,12 @@ export default class Presenter {
     }
   };
 
-
   #onModeChange = () => {
     this.#presenterNewPoint.destroy();
     this.#pointPresenterMap.forEach((presenter) => presenter.resetView());
   };
 
   init() {
-    this.#renderTripInfo();
     this.#renderWaypointList();
   }
 }

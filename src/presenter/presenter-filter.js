@@ -1,9 +1,8 @@
-import { FilterType } from '../utils.js/filter.js';
+import { FilterType } from '../utils/filter.js';
 import { remove, render, replace } from '../framework/render.js';
-import { filter } from '../utils.js/filter.js';
+import { filter } from '../utils/filter.js';
 import FilterView from '../view/filter-view.js';
-import { UpdateType } from '../utils.js/const.js';
-
+import { UpdateType } from '../utils/const.js';
 
 export default class FilterPresenter {
   #filterContainer = null;
@@ -21,25 +20,25 @@ export default class FilterPresenter {
   }
 
   get filters() {
-    const points = this.#pointsModel.event;
+    const points = this.#pointsModel.events;
 
     return [
       {
         name: FilterType.EVERYTHING,
-        count: filter[FilterType.EVERYTHING](points).length
+        count: filter[FilterType.EVERYTHING](points).length,
       },
       {
         name: FilterType.PAST,
-        count: filter[FilterType.PAST](points).length
+        count: filter[FilterType.PAST](points).length,
       },
       {
         name: FilterType.PRESENT,
-        count: filter[FilterType.PRESENT](points).length
+        count: filter[FilterType.PRESENT](points).length,
       },
       {
         name: FilterType.FUTURE,
-        count: filter[FilterType.FUTURE](points).length
-      }
+        count: filter[FilterType.FUTURE](points).length,
+      },
     ];
   }
 
@@ -50,7 +49,7 @@ export default class FilterPresenter {
     this.#filterComponent = new FilterView({
       filters,
       currentFilterType: this.#filterModel.filter,
-      onFilterChange: this.#handleFilterTypeChange
+      onFilterChange: this.#handleFilterTypeChange,
     });
 
     if (prevFilterComponent === null) {

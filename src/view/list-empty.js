@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { tripMessagesEmpty } from '../utils.js/filter.js';
+import { tripMessagesEmpty } from '../utils/filter.js';
 
 const createtListempty = (filterType) => `<p class="trip-events__msg">${tripMessagesEmpty[filterType]}</p>`;
 

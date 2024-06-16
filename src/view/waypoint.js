@@ -1,6 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { appDay } from '../utils.js/day.js';
-import { getDuration } from '../utils.js/util.js';
+import { appDay } from '../utils/day.js';
+import { getDuration } from '../utils/util.js';
 
 const createWaypoint = (waypoint, destinationCurrent, offers) => {
   const { basePrice: price, dateFrom: ISOFrom, dateTo: ISOTo, isFavorite, type, offers: offersPoint } = waypoint;
@@ -21,15 +21,19 @@ const createWaypoint = (waypoint, destinationCurrent, offers) => {
       return '';
     }
 
-    return pointTypeOffer.offers.filter((offer) => offersPoint.includes(offer.id)).map((offer) => `<li class="event__offer">
+    return pointTypeOffer.offers
+      .filter((offer) => offersPoint.includes(offer.id))
+      .map(
+        (offer) => `<li class="event__offer">
                     <span class="event__offer-title">${offer.title}</span>
                     &plus;&euro;&nbsp;
                     <span class="event__offer-price">${offer.price}</span>
-                  </li>`).join('');
+                  </li>`,
+      )
+      .join('');
   };
 
   const pointTypeList = createOffersTemplate();
-
 
   return `<li class="trip-events__item">
 <div class="event">
@@ -90,7 +94,6 @@ export default class Waypoint extends AbstractView {
     this.#rollupButton.addEventListener('click', this.#onClickButtonRollupHandler);
     this.#favoriteButton = this.element.querySelector('.event__favorite-btn');
     this.#favoriteButton.addEventListener('click', this.#onFavoriteClickHandler);
-
   }
 
   get template() {
