@@ -10,7 +10,7 @@ import { render } from './framework/render.js';
 const filterContainer = document.querySelector('.trip-controls__filters');
 const tripMainElement = document.querySelector('.trip-main');
 
-const AUTHORIZATION = 'Basic hf7898sdfscv89';
+const AUTHORIZATION = 'Basic hf7898sdfscv83';
 const END_POINT = 'https://23.objects.htmlacademy.pro/big-trip';
 
 const pointsModel = new PointsModel({
@@ -26,9 +26,7 @@ const presenter = new PresenterMain({
   pointsModel,
   filterModel,
   onNewPointDestroy: handleNewPointButtonClose,
-  handleNewPointButtonDis: () => {
-    handleNewPointButtonDisabled();
-  }
+  newPointButtonComponent: newPointButtonComponent
 });
 
 const filterPresenter = new FilterPresenter({
@@ -37,15 +35,10 @@ const filterPresenter = new FilterPresenter({
   pointsModel,
 });
 
-
 const presenterInfoPanel = new PresenterInfoPanel({
   tripInfoContainer: tripMainElement,
   pointsModel,
 });
-
-function handleNewPointButtonDisabled() {
-  newPointButtonComponent.element.disabled = true;
-}
 
 function handleNewPointButtonClick() {
   presenter.createPoint();

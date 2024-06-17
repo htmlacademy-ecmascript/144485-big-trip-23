@@ -33,12 +33,10 @@ const createTripInfoTemplate = (points, offers, destinations) => {
     }
 
     if (!routeCities.length) {
-      routeString = 'No events';
+      routeString = '';
     }
 
-    return `<h1 class="trip-info__title">
-            ${routeString}
-          </h1>`;
+    return `${routeString !== '' ? `<h1 class="trip-info__title">${routeString}</h1>` : ''}`;
   };
 
   const createTripInfoDatesTemplate = () => {
@@ -55,7 +53,7 @@ const createTripInfoTemplate = (points, offers, destinations) => {
       endDateFormat = 'DD';
     }
 
-    return `<p class="trip-info__dates">${startDate.format(DATE_FORMAT).toLowerCase()}&nbsp;&mdash;&nbsp;${endDate.format(endDateFormat).toLowerCase()}</p>`;
+    return `<p class="trip-info__dates">${startDate.format(DATE_FORMAT)}&nbsp;&mdash;&nbsp;${endDate.format(endDateFormat)}</p>`;
   };
 
   const createTripTotalPriceTemplate = () => {
@@ -74,14 +72,14 @@ const createTripInfoTemplate = (points, offers, destinations) => {
       });
     });
 
-    return `<p class="trip-info__cost">Total: &euro;&nbsp;<span class="trip-info__cost-value">${totalPrice}</span></p>`;
+    return `<p class="trip-info__cost">${totalPrice !== 0 ? `Total: &euro;&nbsp;<span class="trip-info__cost-value">${totalPrice}</span>` : ''}</p>`;
   };
 
-  return `<section class="trip-main__trip-info  trip-info">
-            <div class="trip-info__main">
-              ${createTripRouteTemplate()}
-              ${createTripInfoDatesTemplate()}
-            </div>
+  return `<section class="trip-main__trip-info trip-info">
+      <div class="trip-info__main">
+        ${createTripRouteTemplate()}
+        ${createTripInfoDatesTemplate()}
+      </div>
             ${createTripTotalPriceTemplate()}
           </section>`;
 };

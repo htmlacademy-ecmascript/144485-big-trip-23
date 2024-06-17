@@ -4,15 +4,13 @@ import WaypointList from '../view/waypoint-list.js';
 import PresenterWaypoint from './presenter-waypoint.js';
 import ListEmpty from '../view/list-empty.js';
 import PresenterNewPoint from './presenter-new-point.js';
-import { SORT_TYPE } from '../utils/sort.js';
-import { sortByDay, sortByTime, sortByPrice } from '../utils/sort.js';
+import { sortByDay, sortByTime, sortByPrice, SORT_TYPE } from '../utils/sort.js';
 import { UserAction, UpdateType } from '../utils/const.js';
 import { filter } from '../utils/filter.js';
 import { FilterType } from '../utils/filter.js';
 import LoadingView from '../view/loading-view.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import ErrorView from '../view/error-view.js';
-// import CreationForm from '../view/creation-form.js';
 
 const TimeLimit = {
   LOWER_LIMIT: 350,
@@ -40,13 +38,10 @@ export default class PresenterMain {
   });
 
   #sortRendered = false;
-
   #errorComponent = new ErrorView();
-
   #pointPresenter = null;
-  #handleNewPointButtonDidsabled = null;
 
-  constructor({ pointsModel, filterModel, onNewPointDestroy, handleNewPointButtonDis }) {
+  constructor({ pointsModel, filterModel, onNewPointDestroy }) {
     this.#pointsModel = pointsModel;
     this.#filterModel = filterModel;
     this.#offers = pointsModel.offers;
@@ -56,7 +51,6 @@ export default class PresenterMain {
     this.#tripEventsElement = this.pageMainElement.querySelector('.trip-events');
     this.#pointsModel.addObserver(this.#handlerModelEvent);
     this.#filterModel.addObserver(this.#handlerModelEvent);
-    this.#handleNewPointButtonDidsabled = handleNewPointButtonDis;
 
     this.#presenterNewPoint = new PresenterNewPoint({
       pointsModel: this.#pointsModel,
@@ -67,6 +61,7 @@ export default class PresenterMain {
       onModeChange: this.#onModeChange,
       onDestroy: () => {
         onNewPointDestroy();
+        render(this.#waypointList, this.#tripEventsElement);
         this.#renderWaypointList();
       }
     });
@@ -81,10 +76,8 @@ export default class PresenterMain {
         return filteredPoints.sort(sortByPrice);
       case SORT_TYPE.TIME:
         return filteredPoints.sort(sortByTime);
-      case SORT_TYPE.DAY:
-        return filteredPoints.sort(sortByDay);
     }
-    return filteredPoints;
+    return filteredPoints.sort(sortByDay);
   }
 
   createPoint() {
@@ -99,8 +92,8 @@ export default class PresenterMain {
 
     switch (actionType) {
       case UserAction.UPDATE_POINT:
-        this.#pointPresenterMap.get(update.id).setSaving();
         try {
+          this.#pointPresenterMap.get(update.id).setSaving();
           await this.#pointsModel.updatePoint(updateType, update);
         } catch (err) {
           this.#pointPresenterMap.get(update.id).setAborting();
@@ -109,7 +102,6 @@ export default class PresenterMain {
       case UserAction.ADD_POINT:
         try {
           this.#presenterNewPoint.setSaving();
-
           await this.#pointsModel.addPoint(updateType, update);
         } catch (err) {
           this.#presenterNewPoint.setAborting();
@@ -153,15 +145,18 @@ export default class PresenterMain {
     render(this.#loadingComponent, this.#tripEventsElement);
   }
 
+
   #renderErrorMessage() {
     render(this.#errorComponent, this.#tripEventsElement);
   }
+
 
   #onSortTypeChange = (sortType) => {
     if (this.#currentSortType === sortType) {
       return;
     }
     this.#currentSortType = sortType;
+
     this.#clearPoinsList();
     this.#renderWaypointList();
   };
@@ -198,6 +193,8 @@ export default class PresenterMain {
   }
 
   #renderWaypoints() {
+    const trip = document.querySelector('.trip-events__list');
+    trip.innerHTML = '';
     this.points.forEach((point) => this.#renderWaypoint(point));
   }
 
@@ -216,6 +213,7 @@ export default class PresenterMain {
   };
 
   #renderWaypointList = () => {
+    // remove(this.#waypointList);
     render(this.#waypointList, this.#tripEventsElement);
 
     if (this.#isLoading) {
@@ -225,7 +223,6 @@ export default class PresenterMain {
 
     if (!this.points.length && !this.#pointsModel.offers.length && !this.#pointsModel.destinations.length) {
       this.#renderErrorMessage();
-      this.#handleNewPointButtonDidsabled();
       remove(this.#sortPanel);
       return;
     }
@@ -234,7 +231,6 @@ export default class PresenterMain {
     if (this.points.length) {
       this.#renderSortPanel();
       remove(this.#loadingComponent);
-      this.#currentSortType = SORT_TYPE.DAY;
       this.#renderWaypoints();
     } else {
       this.#listEmptyMessage();

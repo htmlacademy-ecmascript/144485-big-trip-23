@@ -1,18 +1,43 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { appDay } from '../utils/day.js';
-import { getDuration } from '../utils/util.js';
+// import { getDuration } from '../utils/util.js';
+
+
+const DATE_FORMAT = 'DD MMM';
+const TIME_FORMAT = 'HH:mm';
+const MILLISECONDS_AMOUNT_IN_HOUR = 3600000;
+const MILLISECONDS_AMOUNT_IN_DAY = 86400000;
 
 const createWaypoint = (waypoint, destinationCurrent, offers) => {
-  const { basePrice: price, dateFrom: ISOFrom, dateTo: ISOTo, isFavorite, type, offers: offersPoint } = waypoint;
-  const dayStart = appDay(ISOFrom).format('MMM D');
-  const dateStart = appDay(ISOFrom).format('YYYY-MM-DD');
-  const timeFrom = appDay(ISOFrom).format('HH:mm');
-  const datetimeFrom = appDay(ISOFrom).format('YYYY-MM-DDTHH:mm');
-  const timeTo = appDay(ISOTo).format('HH:mm');
-  const datetimeTo = appDay(ISOTo).format('YYYY-MM-DDTHH:mm');
-  const duration = getDuration(ISOFrom, ISOTo);
+  const { basePrice: price, dateFrom, dateTo, isFavorite, type, offers: offersPoint } = waypoint;
+  const parsDateTo = appDay(dateTo);
+  const parsDateFrom = appDay(dateFrom);
+
+  const getEventDuration = (from, to) => {
+    const eventDuration = to.diff(from);
+    let durationFormat = 'DD[d] HH[h] mm[m]';
+
+    if (eventDuration < MILLISECONDS_AMOUNT_IN_DAY) {
+      durationFormat = 'HH[h] mm[m]';
+    }
+    if (eventDuration < MILLISECONDS_AMOUNT_IN_HOUR) {
+      durationFormat = 'mm[m]';
+    }
+
+    return appDay.duration(eventDuration).format(durationFormat);
+  };
+
+  // const dayStart = appDay(ISOFrom).format('MMM D');
+  // const dateStart = appDay(ISOFrom).format('YYYY-MM-DD');
+  // const timeFrom = appDay(ISOFrom).format('HH:mm');
+  // const datetimeFrom = appDay(ISOFrom).format('YYYY-MM-DDTHH:mm');
+  // const timeTo = appDay(ISOTo).format('HH:mm');
+  // const datetimeTo = appDay(ISOTo).format('YYYY-MM-DDTHH:mm');
+  // const duration = getDuration(ISOFrom, ISOTo);
   const isFavoriteClass = isFavorite ? 'event__favorite-btn--active' : '';
   const typePicture = type.toLowerCase();
+  const typeUp = type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
+
 
   const pointTypeOffer = offers.find((offer) => offer.type === type);
 
@@ -24,11 +49,7 @@ const createWaypoint = (waypoint, destinationCurrent, offers) => {
     return pointTypeOffer.offers
       .filter((offer) => offersPoint.includes(offer.id))
       .map(
-        (offer) => `<li class="event__offer">
-                    <span class="event__offer-title">${offer.title}</span>
-                    &plus;&euro;&nbsp;
-                    <span class="event__offer-price">${offer.price}</span>
-                  </li>`,
+        (offer) => `<li class="event__offer"><span class="event__offer-title">${offer.title}</span> +&euro;&nbsp;<span class="event__offer-price">${offer.price}</span</li>`,
       )
       .join('');
   };
@@ -37,22 +58,18 @@ const createWaypoint = (waypoint, destinationCurrent, offers) => {
 
   return `<li class="trip-events__item">
 <div class="event">
-  <time class="event__date" datetime="${dateStart}">${dayStart}</time>
+  <time class="event__date" datetime="${dateFrom}">${parsDateFrom.format(DATE_FORMAT)}</time>
   <div class="event__type">
     <img class="event__type-icon" width="42" height="42" src="img/icons/${typePicture}.png" alt="Event type icon">
   </div>
-  <h3 class="event__title">${type} - ${destinationCurrent.name}</h3>
+  <h3 class="event__title">${typeUp} ${destinationCurrent ? destinationCurrent.name : ''}</h3>
   <div class="event__schedule">
     <p class="event__time">
-      <time class="event__start-time" datetime="${datetimeFrom}">${timeFrom}</time>
-      —
-      <time class="event__end-time" datetime="${datetimeTo}">${timeTo}</time>
+      <time class="event__start-time" datetime="${dateFrom}">${parsDateFrom.format(TIME_FORMAT)}</time> — <time class="event__end-time" datetime="${dateTo}">${parsDateTo.format(TIME_FORMAT)}</time>
     </p>
-    <p class="event__duration">${duration}</p>
-  </div>
-  <p class="event__price">
-    €&nbsp;<span class="event__price-value">${price ? price : 0}</span>
-  </p>
+    <p class="event__duration">${getEventDuration(parsDateFrom, parsDateTo)}</p>
+  </div >
+  <p class="event__price">€&nbsp;<span class="event__price-value">${price ? price : 0}</span></p>
   <h4 class="visually-hidden">Offers:</h4>
   <ul class="event__selected-offers">
   ${pointTypeList}
@@ -66,8 +83,8 @@ const createWaypoint = (waypoint, destinationCurrent, offers) => {
   <button class="event__rollup-btn" type="button">
     <span class="visually-hidden">Open event</span>
   </button>
-</div>
-</li>`;
+</div >
+</li > `;
 };
 
 export default class Waypoint extends AbstractView {
