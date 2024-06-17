@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import AbstractView from '../framework/view/abstract-view.js';
 
-const DATE_FORMAT = 'MMM DD';
+const DATE_FORMAT = 'DD MMM';
 const MULTIPLE_SYMBOL = '...';
 const MAX_CITIES_VISIBLE_COUNT = 3;
 
@@ -50,7 +50,7 @@ const createTripInfoTemplate = (points, offers, destinations) => {
     let endDateFormat = DATE_FORMAT;
 
     if (endDate.isSame(startDate, 'month')) {
-      endDateFormat = 'DD';
+      endDateFormat = 'DD MMM';
     }
 
     return `<p class="trip-info__dates">${startDate.format(DATE_FORMAT)}&nbsp;&mdash;&nbsp;${endDate.format(endDateFormat)}</p>`;
