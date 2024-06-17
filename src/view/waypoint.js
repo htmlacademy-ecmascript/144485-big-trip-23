@@ -1,39 +1,17 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { appDay } from '../utils/day.js';
-// import { getDuration } from '../utils/util.js';
+import { calculateDuration } from '../utils/util.js';
 
 
-const DATE_FORMAT = 'DD MMM';
+const DATE_FORMAT = 'MMM DD';
 const TIME_FORMAT = 'HH:mm';
-const MILLISECONDS_AMOUNT_IN_HOUR = 3600000;
-const MILLISECONDS_AMOUNT_IN_DAY = 86400000;
 
 const createWaypoint = (waypoint, destinationCurrent, offers) => {
   const { basePrice: price, dateFrom, dateTo, isFavorite, type, offers: offersPoint } = waypoint;
   const parsDateTo = appDay(dateTo);
   const parsDateFrom = appDay(dateFrom);
 
-  const getEventDuration = (from, to) => {
-    const eventDuration = to.diff(from);
-    let durationFormat = 'DD[d] HH[h] mm[m]';
 
-    if (eventDuration < MILLISECONDS_AMOUNT_IN_DAY) {
-      durationFormat = 'HH[h] mm[m]';
-    }
-    if (eventDuration < MILLISECONDS_AMOUNT_IN_HOUR) {
-      durationFormat = 'mm[m]';
-    }
-
-    return appDay.duration(eventDuration).format(durationFormat);
-  };
-
-  // const dayStart = appDay(ISOFrom).format('MMM D');
-  // const dateStart = appDay(ISOFrom).format('YYYY-MM-DD');
-  // const timeFrom = appDay(ISOFrom).format('HH:mm');
-  // const datetimeFrom = appDay(ISOFrom).format('YYYY-MM-DDTHH:mm');
-  // const timeTo = appDay(ISOTo).format('HH:mm');
-  // const datetimeTo = appDay(ISOTo).format('YYYY-MM-DDTHH:mm');
-  // const duration = getDuration(ISOFrom, ISOTo);
   const isFavoriteClass = isFavorite ? 'event__favorite-btn--active' : '';
   const typePicture = type.toLowerCase();
   const typeUp = type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
@@ -67,7 +45,7 @@ const createWaypoint = (waypoint, destinationCurrent, offers) => {
     <p class="event__time">
       <time class="event__start-time" datetime="${dateFrom}">${parsDateFrom.format(TIME_FORMAT)}</time> — <time class="event__end-time" datetime="${dateTo}">${parsDateTo.format(TIME_FORMAT)}</time>
     </p>
-    <p class="event__duration">${getEventDuration(parsDateFrom, parsDateTo)}</p>
+    <p class="event__duration">${calculateDuration(dateFrom, dateTo)}</p>
   </div >
   <p class="event__price">€&nbsp;<span class="event__price-value">${price ? price : 0}</span></p>
   <h4 class="visually-hidden">Offers:</h4>

@@ -137,7 +137,7 @@ const createWaypointForm = (waypoint, destinations, offers, pointsModel) => {
     <div class="event__field-group event__field-group--price">
       <label class="event__label" for="event-price-1">
         <span class="visually-hidden">Price</span>&euro;</label>
-      <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}">
+      <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${he.encode(basePrice.toString())}">
     </div>
     <button class="event__save-btn  btn  btn--blue" type="submit">${submitButtonText}</button>
     <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${resetButtonText}</button>

@@ -38,6 +38,8 @@ export default class PresenterMain {
     upperLimit: TimeLimit.UPPER_LIMIT,
   });
 
+  #tripEmptyPoint = null;
+
   #sortRendered = false;
   #errorComponent = new ErrorView();
   #pointPresenter = null;
@@ -62,24 +64,9 @@ export default class PresenterMain {
       onModeChange: this.#onModeChange,
       onDestroy: () => {
         onNewPointDestroy();
-        // render(this.#waypointList, this.#tripEventsElement);
-        // this.#renderWaypointList();
       }
     });
   }
-
-  // get points() {
-  //   const currentFilterType = this.#filterModel.filter;
-  //   const points = this.#pointsModel.events.sort(sortByDay);
-  //   const filteredPoints = filter[currentFilterType](points);
-  //   switch (this.#currentSortType) {
-  //     case SORT_TYPE.PRICE:
-  //       return filteredPoints.sort(sortByPrice);
-  //     case SORT_TYPE.TIME:
-  //       return filteredPoints.sort(sortByTime);
-  //   }
-  //   return filteredPoints.sort(sortByDay);
-  // }
 
   get points() {
     this.#currentFilterType = this.#filterModel.filter;
@@ -123,6 +110,7 @@ export default class PresenterMain {
           this.#pointPresenterMap.get(update.id).setAborting();
         }
         break;
+
     }
 
     this.#uiBlocker.unblock();
@@ -202,8 +190,7 @@ export default class PresenterMain {
   }
 
   #renderWaypoints() {
-    const trip = document.querySelector('.trip-events__list');
-    trip.innerHTML = '';
+
     this.points.forEach((point) => this.#renderWaypoint(point));
   }
 
@@ -222,7 +209,6 @@ export default class PresenterMain {
   };
 
   #renderWaypointList = () => {
-    // remove(this.#waypointList);
     render(this.#waypointList, this.#tripEventsElement);
 
     if (this.#isLoading) {
