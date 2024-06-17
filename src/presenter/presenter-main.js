@@ -4,7 +4,7 @@ import WaypointList from '../view/waypoint-list.js';
 import PresenterWaypoint from './presenter-waypoint.js';
 import ListEmpty from '../view/list-empty.js';
 import PresenterNewPoint from './presenter-new-point.js';
-import { sortByDay, sortByTime, sortByPrice, SORT_TYPE } from '../utils/sort.js';
+import { SORT_TYPE, sortPoints } from '../utils/sort.js';
 import { UserAction, UpdateType } from '../utils/const.js';
 import { filter } from '../utils/filter.js';
 import { FilterType } from '../utils/filter.js';
@@ -20,6 +20,7 @@ const TimeLimit = {
 export default class PresenterMain {
   #sortPanel = null;
   #tripInfo = null;
+  #currentFilterType = FilterType.EVERYTHING;
   #waypointList = new WaypointList();
   #pointsModel = null;
   #pointPresenterMap = new Map();
@@ -61,23 +62,30 @@ export default class PresenterMain {
       onModeChange: this.#onModeChange,
       onDestroy: () => {
         onNewPointDestroy();
-        render(this.#waypointList, this.#tripEventsElement);
-        this.#renderWaypointList();
+        // render(this.#waypointList, this.#tripEventsElement);
+        // this.#renderWaypointList();
       }
     });
   }
 
+  // get points() {
+  //   const currentFilterType = this.#filterModel.filter;
+  //   const points = this.#pointsModel.events.sort(sortByDay);
+  //   const filteredPoints = filter[currentFilterType](points);
+  //   switch (this.#currentSortType) {
+  //     case SORT_TYPE.PRICE:
+  //       return filteredPoints.sort(sortByPrice);
+  //     case SORT_TYPE.TIME:
+  //       return filteredPoints.sort(sortByTime);
+  //   }
+  //   return filteredPoints.sort(sortByDay);
+  // }
+
   get points() {
-    const currentFilterType = this.#filterModel.filter;
+    this.#currentFilterType = this.#filterModel.filter;
     const points = this.#pointsModel.events;
-    const filteredPoints = filter[currentFilterType](points);
-    switch (this.#currentSortType) {
-      case SORT_TYPE.PRICE:
-        return filteredPoints.sort(sortByPrice);
-      case SORT_TYPE.TIME:
-        return filteredPoints.sort(sortByTime);
-    }
-    return filteredPoints.sort(sortByDay);
+    const filteredPoints = filter[this.#currentFilterType](points);
+    return sortPoints(this.#currentSortType, filteredPoints, this.#pointsModel);
   }
 
   createPoint() {
@@ -189,6 +197,7 @@ export default class PresenterMain {
     remove(this.#listMessageComponent);
     if (resetSortType) {
       this.#currentSortType = SORT_TYPE.DAY;
+      this.#currentFilterType = FilterType.EVERYTHING;
     }
   }
 

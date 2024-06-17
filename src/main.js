@@ -10,7 +10,7 @@ import { render } from './framework/render.js';
 const filterContainer = document.querySelector('.trip-controls__filters');
 const tripMainElement = document.querySelector('.trip-main');
 
-const AUTHORIZATION = 'Basic hf7898sdfscv83';
+const AUTHORIZATION = 'Basic hf7898sdfscv84';
 const END_POINT = 'https://23.objects.htmlacademy.pro/big-trip';
 
 const pointsModel = new PointsModel({
