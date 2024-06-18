@@ -17,6 +17,11 @@ const TimeLimit = {
   UPPER_LIMIT: 1000,
 };
 
+const ModeAdded = {
+  DEFAULT: 'DEFAULT',
+  ADDED: 'ADDED',
+};
+
 export default class PresenterMain {
   #sortPanel = null;
   #tripInfo = null;
@@ -38,16 +43,18 @@ export default class PresenterMain {
     upperLimit: TimeLimit.UPPER_LIMIT,
   });
 
-  #tripEmptyPoint = null;
+  // #tripEmptyPoint = null;
 
   #sortRendered = false;
   #errorComponent = new ErrorView();
   #pointPresenter = null;
+  #newPointButtonComponent = null;
 
-  constructor({ pointsModel, filterModel, onNewPointDestroy }) {
+  constructor({ pointsModel, filterModel, onNewPointDestroy, newPointButtonComponent }) {
     this.#pointsModel = pointsModel;
     this.#filterModel = filterModel;
     this.#offers = pointsModel.offers;
+    this.#newPointButtonComponent = newPointButtonComponent;
     this.pageHeaderElement = document.querySelector('.page-header');
     this.#tripMainElement = this.pageHeaderElement.querySelector('.trip-main');
     this.pageMainElement = document.querySelector('.page-main');
@@ -62,6 +69,8 @@ export default class PresenterMain {
       containerList: this.#waypointList.element,
       onPointChange: this.#handleViewAction,
       onModeChange: this.#onModeChange,
+      deletingEmptyPoint: this.deletingEmptyPoint,
+      recoveryEmptyPoint: this.recoveryEmptyPoint,
       onDestroy: () => {
         onNewPointDestroy();
       }
@@ -75,10 +84,10 @@ export default class PresenterMain {
     return sortPoints(this.#currentSortType, filteredPoints, this.#pointsModel);
   }
 
+
   createPoint() {
     this.#currentSortType = SORT_TYPE.DAY;
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-    remove(this.#listMessageComponent);
     this.#presenterNewPoint.init();
   }
 
@@ -170,7 +179,10 @@ export default class PresenterMain {
   }
 
   #listEmptyMessage() {
+
     this.#listMessageComponent = new ListEmpty(this.#filterModel.filter);
+
+
     render(this.#listMessageComponent, this.#tripEventsElement);
   }
 
@@ -236,6 +248,23 @@ export default class PresenterMain {
   #onModeChange = () => {
     this.#presenterNewPoint.destroy();
     this.#pointPresenterMap.forEach((presenter) => presenter.resetView());
+  };
+
+  deletingEmptyPoint = (marker) => {
+    if (marker === ModeAdded.ADDED) {
+      if (this.#listMessageComponent) {
+        remove(this.#listMessageComponent);
+        this.#listMessageComponent = null;
+      }
+    }
+  };
+
+  recoveryEmptyPoint = (marker) => {
+    if (marker === ModeAdded.DEFAULT) {
+      if (!this.#listMessageComponent && this.#pointsModel.events.length === 0) {
+        this.#listEmptyMessage();
+      }
+    }
   };
 
   init() {
