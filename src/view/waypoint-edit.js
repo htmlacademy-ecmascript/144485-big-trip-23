@@ -278,15 +278,11 @@ export default class WaypointEdit extends AbstractStatefulView {
   }
 
   #dateFromChangeHandler = ([dateFrom]) => {
-    this.updateElement({
-      dateFrom: dateFrom,
-    });
+    this._state.dateFrom = dateFrom;
   };
 
   #dateToChangeHandler = ([dateTo]) => {
-    this.updateElement({
-      dateTo: dateTo,
-    });
+    this._state.dateTo = dateTo;
   };
 
   #setDatePickerFrom() {
