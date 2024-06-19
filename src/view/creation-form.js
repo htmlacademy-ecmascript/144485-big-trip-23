@@ -7,14 +7,14 @@ export default class CreationForm extends AbstractView {
   constructor({ onClick }) {
     super();
     this.#onClick = onClick;
-    this.element.addEventListener('click', this.#clickHandler);
+    this.element.addEventListener('click', this.#newEventClickHandler);
   }
 
   get template() {
     return createEventButton();
   }
 
-  #clickHandler = (evt) => {
+  #newEventClickHandler = (evt) => {
     evt.preventDefault();
     this.#onClick();
   };

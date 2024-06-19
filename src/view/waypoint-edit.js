@@ -139,10 +139,10 @@ const createWaypointForm = (waypoint, destinations, offers, pointsModel) => {
         <span class="visually-hidden">Price</span>&euro;</label>
       <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${he.encode(basePrice.toString())}">
     </div>
-    <button class="event__save-btn  btn  btn--blue" type="submit">${submitButtonText}</button>
+    <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${submitButtonText}</button>
     <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${resetButtonText}</button>
-    ${isNewPoint ? '' : `<button class="event__rollup-btn" type="button">
-      <span class="visually-hidden" ${isDisabled ? 'disabled' : ''}>Open event</span>
+    ${isNewPoint ? '' : `<button class="event__rollup-btn" type="button" ${isDisabled ? 'disabled' : ''}>
+      <span class="visually-hidden">Open event</span>
     </button>`}
   </header>
   <section class="event__details">
@@ -185,20 +185,35 @@ export default class WaypointEdit extends AbstractStatefulView {
   }
 
   _restoreHandlers() {
-    this.element.querySelector('form').addEventListener('submit', this.#onEditFormSaveHandler);
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#onDeleteEditFormHandler);
-    this.element.querySelector('.event__type-group').addEventListener('change', this.#eventTypeToggleHandler);
+    this.element.querySelector('form').addEventListener('submit', this.#editFormSubmitHandler);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#eventRestBtnClickHandler);
+    this.element.querySelector('.event__type-group').addEventListener('change', this.#eventTypeChangeHandler);
     this.element.querySelectorAll('.event__offer-selector input').forEach((offer) => offer.addEventListener('change', this.#offersChangeHandler));
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#eventDestinationToggleHandler);
     this.element.querySelector('.event__input--price').addEventListener('change', this.#priceInputHandler);
 
     if (this._state.id) {
       this.element.querySelector('.event__rollup-btn')
-        .addEventListener('click', this.#onEditFormRollupButtonHandler);
+        .addEventListener('click', this.#editFormRollupButtonHandler);
     }
 
     this.#setDatePickerFrom();
     this.#setDatePickerTo();
+  }
+
+
+  removeElement() {
+    super.removeElement();
+
+    if (this.#datepickerFrom) {
+      this.#datepickerFrom.destroy();
+      this.#datepickerFrom = null;
+    }
+
+    if (this.#datepickerTo) {
+      this.#datepickerTo.destroy();
+      this.#datepickerTo = null;
+    }
   }
 
   #eventDestinationToggleHandler = (evt) => {
@@ -221,7 +236,7 @@ export default class WaypointEdit extends AbstractStatefulView {
 
   };
 
-  #eventTypeToggleHandler = (evt) => {
+  #eventTypeChangeHandler = (evt) => {
     evt.preventDefault();
 
     this.updateElement({
@@ -247,35 +262,21 @@ export default class WaypointEdit extends AbstractStatefulView {
     });
   };
 
-  #onEditFormRollupButtonHandler = (evt) => {
+  #editFormRollupButtonHandler = (evt) => {
     evt.preventDefault();
     this.#onEditFormRollupButtonClick();
   };
 
-  #onEditFormSaveHandler = (evt) => {
+  #editFormSubmitHandler = (evt) => {
     evt.preventDefault();
     this.#onEditFormSave(WaypointEdit.parseStateToPoint(this._state));
   };
 
-  #onDeleteEditFormHandler = (evt) => {
+  #eventRestBtnClickHandler = (evt) => {
     evt.preventDefault();
     this.#onDeleteForm(WaypointEdit.parseStateToPoint(this._state));
 
   };
-
-  removeElement() {
-    super.removeElement();
-
-    if (this.#datepickerFrom) {
-      this.#datepickerFrom.destroy();
-      this.#datepickerFrom = null;
-    }
-
-    if (this.#datepickerTo) {
-      this.#datepickerTo.destroy();
-      this.#datepickerTo = null;
-    }
-  }
 
   #dateFromChangeHandler = ([dateFrom]) => {
     this._state.dateFrom = dateFrom;

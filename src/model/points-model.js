@@ -24,6 +24,16 @@ export default class PointsModel extends Observable {
     return this.#destinations;
   }
 
+  getCurrentOffer(type) {
+    if (this.offers) {
+      return this.offers.find((item) => item.type === type);
+    }
+  }
+
+  getDestinationId(id) {
+    return this.destinations.find((item) => item.id === id);
+  }
+
   async init() {
     try {
       const points = await this.#pointsApiService.points;
@@ -38,7 +48,6 @@ export default class PointsModel extends Observable {
       this.#offers = [];
       this.#destinations = [];
     }
-
 
     this._notify(UpdateType.INIT);
   }
@@ -118,14 +127,5 @@ export default class PointsModel extends Observable {
     return adaptedPoint;
   }
 
-  getCurrentOffer(type) {
-    if (this.offers) {
-      return this.offers.find((item) => item.type === type);
-    }
-  }
-
-  getDestinationId(id) {
-    return this.destinations.find((item) => item.id === id);
-  }
 }
 

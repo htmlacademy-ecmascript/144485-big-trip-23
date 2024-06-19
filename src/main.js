@@ -7,7 +7,7 @@ import PresenterInfoPanel from './presenter/presenter-info-panel.js';
 import CreationForm from './view/creation-form.js';
 import { render } from './framework/render.js';
 
-const filterContainer = document.querySelector('.trip-controls__filters');
+const filterContainerElement = document.querySelector('.trip-controls__filters');
 const tripMainElement = document.querySelector('.trip-main');
 
 const AUTHORIZATION = 'Basic hf7898sdfscv88';
@@ -26,11 +26,10 @@ const presenter = new PresenterMain({
   pointsModel,
   filterModel,
   onNewPointDestroy: handleNewPointButtonClose,
-  // newPointButtonComponent: newPointButtonComponent
 });
 
 const filterPresenter = new FilterPresenter({
-  filterContainer: filterContainer,
+  filterContainer: filterContainerElement,
   filterModel,
   pointsModel,
 });
