@@ -78,6 +78,10 @@ export default class PresenterMain {
     this.#presenterNewPoint.init();
   }
 
+  init() {
+    this.#renderWaypointList();
+  }
+
   #handleViewAction = async (actionType, updateType, update) => {
     this.#uiBlocker.block();
 
@@ -119,11 +123,11 @@ export default class PresenterMain {
         this.#pointPresenterMap.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
-        this.#clearPoinsList();
+        this.#clearPointsList();
         this.#renderWaypointList();
         break;
       case UpdateType.MAJOR:
-        this.#clearPoinsList({ resetSortType: true });
+        this.#clearPointsList({ resetSortType: true });
         this.#renderWaypointList();
         break;
       case UpdateType.INIT:
@@ -147,7 +151,7 @@ export default class PresenterMain {
       return;
     }
     this.#currentSortType = sortType;
-    this.#clearPoinsList();
+    this.#clearPointsList();
     this.#renderWaypointList();
   };
 
@@ -168,7 +172,7 @@ export default class PresenterMain {
     render(this.#listMessageComponent, this.#tripEventsElement);
   }
 
-  #clearPoinsList(resetSortType = false) {
+  #clearPointsList(resetSortType = false) {
     this.#presenterNewPoint.destroy();
     this.#pointPresenterMap.forEach((presenter) => presenter.destroy());
     this.#pointPresenterMap.clear();
@@ -242,7 +246,5 @@ export default class PresenterMain {
     }
   };
 
-  init() {
-    this.#renderWaypointList();
-  }
+
 }

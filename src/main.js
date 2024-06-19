@@ -1,7 +1,7 @@
 import PresenterMain from './presenter/presenter-main.js';
 import PointsModel from './model/points-model.js';
 import FilterModel from './model/filter-model.js';
-import FilterPresenter from './presenter/presenter-filter.js';
+import PresenterFilter from './presenter/presenter-filter.js';
 import PointsApiService from './points-api-service.js';
 import PresenterInfoPanel from './presenter/presenter-info-panel.js';
 import CreationForm from './view/creation-form.js';
@@ -28,7 +28,7 @@ const presenter = new PresenterMain({
   onNewPointDestroy: handleNewPointButtonClose,
 });
 
-const filterPresenter = new FilterPresenter({
+const filterPresenter = new PresenterFilter({
   filterContainer: filterContainerElement,
   filterModel,
   pointsModel,

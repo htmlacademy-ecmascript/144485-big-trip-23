@@ -4,7 +4,7 @@ import { filter } from '../utils/filter.js';
 import FilterView from '../view/filter-view.js';
 import { UpdateType } from '../utils/const.js';
 
-export default class FilterPresenter {
+export default class PresenterFilter {
   #filterContainer = null;
   #filterModel = null;
   #pointsModel = null;
