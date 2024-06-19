@@ -2,7 +2,6 @@ import AbstractView from '../framework/view/abstract-view.js';
 import { appDay } from '../utils/day.js';
 import { calculateDuration } from '../utils/util.js';
 
-
 const DATE_FORMAT = 'MMM DD';
 const TIME_FORMAT = 'HH:mm';
 
@@ -10,13 +9,9 @@ const createWaypoint = (waypoint, destinationCurrent, offers) => {
   const { basePrice: price, dateFrom, dateTo, isFavorite, type, offers: offersPoint } = waypoint;
   const parsDateTo = appDay(dateTo);
   const parsDateFrom = appDay(dateFrom);
-
-
   const isFavoriteClass = isFavorite ? 'event__favorite-btn--active' : '';
   const typePicture = type.toLowerCase();
   const typeUp = type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
-
-
   const pointTypeOffer = offers.find((offer) => offer.type === type);
 
   const createOffersTemplate = () => {
@@ -67,22 +62,18 @@ const createWaypoint = (waypoint, destinationCurrent, offers) => {
 
 export default class Waypoint extends AbstractView {
   #waypoint = null;
-  #destinations = null;
   #onClickButtonRollup = null;
   #onFavoriteClick = null;
   #rollupButton = null;
   #favoriteButton = null;
   #destinationCurrent = null;
-  #offerCurrent = null;
   #offers = null;
 
-  constructor({ waypoint, onClickButtonRollup, destinations, onFavoriteClick, offerCurrent, destinationCurrent, offers }) {
+  constructor({ waypoint, onClickButtonRollup, onFavoriteClick, destinationCurrent, offers }) {
     super();
     this.#waypoint = waypoint;
-    this.#offerCurrent = offerCurrent;
     this.#offers = offers;
     this.#onClickButtonRollup = onClickButtonRollup;
-    this.#destinations = destinations;
     this.#destinationCurrent = destinationCurrent;
     this.#onFavoriteClick = onFavoriteClick;
     this.#rollupButton = this.element.querySelector('.event__rollup-btn');

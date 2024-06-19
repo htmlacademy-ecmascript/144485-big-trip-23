@@ -1,6 +1,5 @@
 import TripInfo from '../view/trip-info.js';
 import { remove, render, RenderPosition, replace } from '../framework/render.js';
-import { sortByDay } from '../utils/sort.js';
 
 export default class PresenterInfoPanel {
   #tripInfoContainer = null;
@@ -15,7 +14,7 @@ export default class PresenterInfoPanel {
   }
 
   init() {
-    const points = this.#pointsModel.events.sort(sortByDay);
+    const points = this.#pointsModel.events;
     const offers = this.#pointsModel.offers;
     const destinations = this.#pointsModel.destinations;
     const prevInfoComponent = this.#tripInfoComponent;

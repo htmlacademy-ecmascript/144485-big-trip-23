@@ -26,7 +26,7 @@ const presenter = new PresenterMain({
   pointsModel,
   filterModel,
   onNewPointDestroy: handleNewPointButtonClose,
-  newPointButtonComponent: newPointButtonComponent
+  // newPointButtonComponent: newPointButtonComponent
 });
 
 const filterPresenter = new FilterPresenter({

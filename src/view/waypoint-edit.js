@@ -142,7 +142,7 @@ const createWaypointForm = (waypoint, destinations, offers, pointsModel) => {
     <button class="event__save-btn  btn  btn--blue" type="submit">${submitButtonText}</button>
     <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${resetButtonText}</button>
     ${isNewPoint ? '' : `<button class="event__rollup-btn" type="button">
-      <span class="visually-hidden">Open event</span>
+      <span class="visually-hidden" ${isDisabled ? 'disabled' : ''}>Open event</span>
     </button>`}
   </header>
   <section class="event__details">

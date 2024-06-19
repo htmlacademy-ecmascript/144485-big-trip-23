@@ -3,12 +3,6 @@ import { remove, render, RenderPosition } from '../framework/render.js';
 import { isEscapeKey } from '../utils/util.js';
 import { UpdateType, UserAction } from '../utils/const.js';
 
-const ModeAdded = {
-  DEFAULT: 'DEFAULT',
-  ADDED: 'ADDED',
-};
-
-
 export default class PresenterNewPoint {
   #pointListContainer = null;
   #onPointChange = null;
@@ -41,7 +35,7 @@ export default class PresenterNewPoint {
     });
 
     render(this.#pointEditComponent, this.#pointListContainer, RenderPosition.AFTERBEGIN);
-    this.#deletingEmptyPoint(ModeAdded.ADDED);
+    this.#deletingEmptyPoint();
 
     document.addEventListener('keydown', this.#escapeKeydownHandler);
   }
@@ -81,7 +75,7 @@ export default class PresenterNewPoint {
   #escapeKeydownHandler = (evt) => {
     if (isEscapeKey(evt)) {
       evt.preventDefault();
-      this.#recoveryEmptyPoint(ModeAdded.DEFAULT);
+      this.#recoveryEmptyPoint();
       this.destroy();
     }
   };
@@ -91,7 +85,7 @@ export default class PresenterNewPoint {
   };
 
   #handleFormCancelButtonClick = () => {
-    this.#recoveryEmptyPoint(ModeAdded.DEFAULT);
+    this.#recoveryEmptyPoint();
     this.destroy();
   };
 }

@@ -42,10 +42,8 @@ export default class PresenterWaypoint {
     this.#eventView = new Waypoint({
       waypoint: point,
       onClickButtonRollup: this.#onClickButtonRollup,
-      destinations: this.#destinations,
       destinationCurrent: this.#destinationCurrent,
       onFavoriteClick: this.#onFavoriteClick,
-      offerCurrent: this.#offersCurrent,
       offers: this.#offers,
     });
 
