@@ -37,6 +37,7 @@ const filterPresenter = new FilterPresenter({
 const presenterInfoPanel = new PresenterInfoPanel({
   tripInfoContainer: tripMainElement,
   pointsModel,
+  presenter: presenter
 });
 
 function handleNewPointButtonClick() {
