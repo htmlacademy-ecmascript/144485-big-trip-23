@@ -14,7 +14,6 @@ export default class FilterPresenter {
     this.#filterContainer = filterContainer;
     this.#filterModel = filterModel;
     this.#pointsModel = pointsModel;
-
     this.#pointsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
   }
@@ -28,17 +27,18 @@ export default class FilterPresenter {
         count: filter[FilterType.EVERYTHING](points).length,
       },
       {
-        name: FilterType.PAST,
-        count: filter[FilterType.PAST](points).length,
+        name: FilterType.FUTURE,
+        count: filter[FilterType.FUTURE](points).length,
       },
       {
         name: FilterType.PRESENT,
         count: filter[FilterType.PRESENT](points).length,
       },
       {
-        name: FilterType.FUTURE,
-        count: filter[FilterType.FUTURE](points).length,
+        name: FilterType.PAST,
+        count: filter[FilterType.PAST](points).length,
       },
+
     ];
   }
 

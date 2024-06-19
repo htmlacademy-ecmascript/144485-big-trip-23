@@ -4,8 +4,7 @@ import WaypointList from '../view/waypoint-list.js';
 import PresenterWaypoint from './presenter-waypoint.js';
 import ListEmpty from '../view/list-empty.js';
 import PresenterNewPoint from './presenter-new-point.js';
-import { SORT_TYPE } from '../utils/sort.js';
-import { sortByDay, sortByTime, sortByPrice } from '../utils/sort.js';
+import { SORT_TYPE, sortPoints } from '../utils/sort.js';
 import { UserAction, UpdateType } from '../utils/const.js';
 import { filter } from '../utils/filter.js';
 import { FilterType } from '../utils/filter.js';
@@ -20,7 +19,7 @@ const TimeLimit = {
 
 export default class PresenterMain {
   #sortPanel = null;
-  #tripInfo = null;
+  #currentFilterType = FilterType.EVERYTHING;
   #waypointList = new WaypointList();
   #pointsModel = null;
   #pointPresenterMap = new Map();
@@ -31,15 +30,14 @@ export default class PresenterMain {
   #presenterNewPoint = null;
   #offers = null;
   #isLoading = true;
-  #tripMainElement = null;
   #loadingComponent = new LoadingView();
   #uiBlocker = new UiBlocker({
     lowerLimit: TimeLimit.LOWER_LIMIT,
     upperLimit: TimeLimit.UPPER_LIMIT,
   });
 
+  #sortRendered = false;
   #errorComponent = new ErrorView();
-
   #pointPresenter = null;
 
   constructor({ pointsModel, filterModel, onNewPointDestroy }) {
@@ -47,7 +45,6 @@ export default class PresenterMain {
     this.#filterModel = filterModel;
     this.#offers = pointsModel.offers;
     this.pageHeaderElement = document.querySelector('.page-header');
-    this.#tripMainElement = this.pageHeaderElement.querySelector('.trip-main');
     this.pageMainElement = document.querySelector('.page-main');
     this.#tripEventsElement = this.pageMainElement.querySelector('.trip-events');
     this.#pointsModel.addObserver(this.#handlerModelEvent);
@@ -60,23 +57,19 @@ export default class PresenterMain {
       containerList: this.#waypointList.element,
       onPointChange: this.#handleViewAction,
       onModeChange: this.#onModeChange,
-      onDestroy: onNewPointDestroy,
+      deletingEmptyPoint: this.#deletingEmptyPoint,
+      recoveryEmptyPoint: this.#recoveryEmptyPoint,
+      onDestroy: () => {
+        onNewPointDestroy();
+      }
     });
   }
 
   get points() {
-    const currentFilterType = this.#filterModel.filter;
+    this.#currentFilterType = this.#filterModel.filter;
     const points = this.#pointsModel.events;
-    const filteredPoints = filter[currentFilterType](points);
-    switch (this.#currentSortType) {
-      case SORT_TYPE.PRICE:
-        return filteredPoints.sort(sortByPrice);
-      case SORT_TYPE.TIME:
-        return filteredPoints.sort(sortByTime);
-      case SORT_TYPE.DAY:
-        return filteredPoints.sort(sortByDay);
-    }
-    return filteredPoints;
+    const filteredPoints = filter[this.#currentFilterType](points);
+    return sortPoints(this.#currentSortType, filteredPoints);
   }
 
   createPoint() {
@@ -90,9 +83,11 @@ export default class PresenterMain {
 
     switch (actionType) {
       case UserAction.UPDATE_POINT:
-        this.#pointPresenterMap.get(update.id).setSaving();
+
         try {
+          this.#pointPresenterMap.get(update.id).setSaving();
           await this.#pointsModel.updatePoint(updateType, update);
+
         } catch (err) {
           this.#pointPresenterMap.get(update.id).setAborting();
         }
@@ -100,7 +95,6 @@ export default class PresenterMain {
       case UserAction.ADD_POINT:
         try {
           this.#presenterNewPoint.setSaving();
-
           await this.#pointsModel.addPoint(updateType, update);
         } catch (err) {
           this.#presenterNewPoint.setAborting();
@@ -158,11 +152,15 @@ export default class PresenterMain {
   };
 
   #renderSortPanel() {
+    if (this.#sortRendered) {
+      return;
+    }
     this.#sortPanel = new SortPanel({
       onSortTypeChange: this.#onSortTypeChange,
       currentSortType: this.#currentSortType,
     });
     render(this.#sortPanel, this.#tripEventsElement, RenderPosition.AFTERBEGIN);
+    this.#sortRendered = true;
   }
 
   #listEmptyMessage() {
@@ -174,12 +172,13 @@ export default class PresenterMain {
     this.#presenterNewPoint.destroy();
     this.#pointPresenterMap.forEach((presenter) => presenter.destroy());
     this.#pointPresenterMap.clear();
-
     remove(this.#sortPanel);
+    this.#sortRendered = false;
     remove(this.#loadingComponent);
     remove(this.#listMessageComponent);
     if (resetSortType) {
       this.#currentSortType = SORT_TYPE.DAY;
+      this.#currentFilterType = FilterType.EVERYTHING;
     }
   }
 
@@ -211,12 +210,12 @@ export default class PresenterMain {
 
     if (!this.points.length && !this.#pointsModel.offers.length && !this.#pointsModel.destinations.length) {
       this.#renderErrorMessage();
+      remove(this.#sortPanel);
       return;
     }
 
-    this.#renderSortPanel();
-
     if (this.points.length) {
+      this.#renderSortPanel();
       remove(this.#loadingComponent);
       this.#renderWaypoints();
     } else {
@@ -228,6 +227,19 @@ export default class PresenterMain {
   #onModeChange = () => {
     this.#presenterNewPoint.destroy();
     this.#pointPresenterMap.forEach((presenter) => presenter.resetView());
+  };
+
+  #deletingEmptyPoint = () => {
+    if (this.#listMessageComponent) {
+      remove(this.#listMessageComponent);
+      this.#listMessageComponent = null;
+    }
+  };
+
+  #recoveryEmptyPoint = () => {
+    if (!this.#listMessageComponent && this.#pointsModel.events.length === 0) {
+      this.#listEmptyMessage();
+    }
   };
 
   init() {

@@ -1,9 +1,9 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { validatePriceField } from '../utils/util.js';
 
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import { appDay } from '../utils/day.js';
+import he from 'he';
 
 const DefaultPointData = {
   DATE_FROM: appDay().toISOString(),
@@ -12,7 +12,7 @@ const DefaultPointData = {
 };
 
 const BLANK_POINT = {
-  basePrice: '',
+  basePrice: '0',
   destination: '',
   isFavorite: false,
   offers: [],
@@ -56,9 +56,7 @@ const createPointOffers = (offerCurrent, offersPoint) => {
         <div class="event__offer-selector">
           <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name="${offer.title}" data-offer-id="${offer.id}" ${offersPoint.includes(offer.id) ? 'checked' : ''}>
           <label class="event__offer-label" for="event-offer-${offer.id}">
-            <span class="event__offer-title">${offer.title}</span>
-            &plus;&euro;&nbsp;
-            <span class="event__offer-price">${offer.price}</span>
+            <span class="event__offer-title">${offer.title}</span> +&euro;&nbsp;<span class="event__offer-price">${offer.price}</span>
           </label>
         </div>`).join('')}
     </div>
@@ -84,9 +82,7 @@ const createPointDestination = (destinationCurrent) => {
     <section class="event__section  event__section--destination">
       <h3 class="event__section-title  event__section-title--destination">Destination</h3>
       <p class="event__destination-description">${destinationCurrent.description}</p>
-
         ${photoList}
-
     </section>`;
 };
 
@@ -108,6 +104,7 @@ const createWaypointForm = (waypoint, destinations, offers, pointsModel) => {
   const submitButtonText = isSaving ? 'Saving...' : 'Save';
   const deleteButtonText = isDeleting ? 'Deleting...' : 'Delete';
   const resetButtonText = isNewPoint ? 'Cancel' : deleteButtonText;
+  const typeNameUp = type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
 
   return `<li class="trip-events__item">
 <form class="event event--edit" action="#" method="post">
@@ -117,8 +114,7 @@ const createWaypointForm = (waypoint, destinations, offers, pointsModel) => {
         <span class="visually-hidden">Choose event type</span>
         <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
       </label>
-      <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
-
+      <input class="event__type-toggle visually-hidden" id="event-type-toggle-1" type="checkbox">
       <div class="event__type-list">
         <fieldset class="event__type-group">
           <legend class="visually-hidden">Event type</legend>
@@ -126,42 +122,35 @@ const createWaypointForm = (waypoint, destinations, offers, pointsModel) => {
         </fieldset>
       </div>
     </div>
-
-    <div class="event__field-group  event__field-group--destination">
-      <label class="event__label  event__type-output" for="event-destination-${type}">${type}</label>
-      <input class="event__input  event__input--destination" id="event-destination-${type}" type="text" name="event-destination" value="${destinationCurrent ? destinationCurrent.name : ''}" list="destination-list-1">
+    <div class="event__field-group event__field-group--destination">
+      <label class="event__label event__type-output" for="event-destination-${type}">${typeNameUp}</label>
+      <input class="event__input event__input--destination" id="event-destination-${type.toLowerCase()}" type="text" name="event-destination" value="${destinationCurrent ? he.encode(destinationCurrent.name) : ''}" list="destination-list-1">
       <datalist id="destination-list-1">
       ${cityList}
       </datalist>
     </div>
-
-    <div class="event__field-group  event__field-group--time">
+    <div class="event__field-group event__field-group--time">
       <label class="visually-hidden" for="event-start-time-1">From</label>
-      <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateFrom ? parsDateFrom.format('DD/MM/YY HH:mm') : ''}">
-      &mdash;
-      <label class="visually-hidden" for="event-end-time-1">To</label>
-      <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateTo ? parsDateTo.format('DD/MM/YY HH:mm') : ''}">
+      <input class="event__input event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateFrom ? parsDateFrom.format('DD/MM/YY HH:mm') : ''}"> &mdash; <label class="visually-hidden" for="event-end-time-1">To</label>
+      <input class="event__input event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateTo ? parsDateTo.format('DD/MM/YY HH:mm') : ''}">
     </div>
-
-    <div class="event__field-group  event__field-group--price">
+    <div class="event__field-group event__field-group--price">
       <label class="event__label" for="event-price-1">
-        <span class="visually-hidden">Price</span>
-        &euro;
-      </label>
-      <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}">
+        <span class="visually-hidden">Price</span>&euro;</label>
+      <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${he.encode(basePrice.toString())}">
     </div>
-    <button class="event__save-btn  btn  btn--blue" type="submit">${submitButtonText}</button>
+    <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${submitButtonText}</button>
     <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${resetButtonText}</button>
-    ${isNewPoint ? '' : `<button class="event__rollup-btn" type="button">
+    ${isNewPoint ? '' : `<button class="event__rollup-btn" type="button" ${isDisabled ? 'disabled' : ''}>
       <span class="visually-hidden">Open event</span>
     </button>`}
   </header>
   <section class="event__details">
   ${createPointOffersList}
 ${createPointDestinationList}
-  </section >
-</form >
-</li > `;
+  </section>
+</form>
+</li>`;
 };
 
 export default class WaypointEdit extends AbstractStatefulView {
@@ -196,24 +185,38 @@ export default class WaypointEdit extends AbstractStatefulView {
   }
 
   _restoreHandlers() {
-    this.element.querySelector('form').addEventListener('submit', this.#onEditFormSaveHandler);
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#onDeleteEditFormHandler);
-    this.element.querySelector('.event__type-group').addEventListener('change', this.#eventTypeToggleHandler);
+    this.element.querySelector('form').addEventListener('submit', this.#editFormSubmitHandler);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#eventRestBtnClickHandler);
+    this.element.querySelector('.event__type-group').addEventListener('change', this.#eventTypeChangeHandler);
     this.element.querySelectorAll('.event__offer-selector input').forEach((offer) => offer.addEventListener('change', this.#offersChangeHandler));
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#eventDestinationToggleHandler);
     this.element.querySelector('.event__input--price').addEventListener('change', this.#priceInputHandler);
 
     if (this._state.id) {
       this.element.querySelector('.event__rollup-btn')
-        .addEventListener('click', this.#onEditFormRollupButtonHandler);
+        .addEventListener('click', this.#editFormRollupButtonHandler);
     }
 
     this.#setDatePickerFrom();
     this.#setDatePickerTo();
   }
 
+
+  removeElement() {
+    super.removeElement();
+
+    if (this.#datepickerFrom) {
+      this.#datepickerFrom.destroy();
+      this.#datepickerFrom = null;
+    }
+
+    if (this.#datepickerTo) {
+      this.#datepickerTo.destroy();
+      this.#datepickerTo = null;
+    }
+  }
+
   #eventDestinationToggleHandler = (evt) => {
-    evt.preventDefault();
     evt.preventDefault();
 
     let selectedDestination = this.#destinations.find((destination) => evt.target.value === destination.name);
@@ -229,12 +232,11 @@ export default class WaypointEdit extends AbstractStatefulView {
   #priceInputHandler = (evt) => {
     evt.preventDefault();
 
-    this.updateElement({
-      basePrice: validatePriceField(evt.target.value)
-    });
+    this._state.basePrice = evt.target.value;
+
   };
 
-  #eventTypeToggleHandler = (evt) => {
+  #eventTypeChangeHandler = (evt) => {
     evt.preventDefault();
 
     this.updateElement({
@@ -260,46 +262,28 @@ export default class WaypointEdit extends AbstractStatefulView {
     });
   };
 
-  #onEditFormRollupButtonHandler = (evt) => {
+  #editFormRollupButtonHandler = (evt) => {
     evt.preventDefault();
     this.#onEditFormRollupButtonClick();
   };
 
-  #onEditFormSaveHandler = (evt) => {
+  #editFormSubmitHandler = (evt) => {
     evt.preventDefault();
     this.#onEditFormSave(WaypointEdit.parseStateToPoint(this._state));
   };
 
-  #onDeleteEditFormHandler = (evt) => {
+  #eventRestBtnClickHandler = (evt) => {
     evt.preventDefault();
     this.#onDeleteForm(WaypointEdit.parseStateToPoint(this._state));
 
   };
 
-  removeElement() {
-    super.removeElement();
-
-    if (this.#datepickerFrom) {
-      this.#datepickerFrom.destroy();
-      this.#datepickerFrom = null;
-    }
-
-    if (this.#datepickerTo) {
-      this.#datepickerTo.destroy();
-      this.#datepickerTo = null;
-    }
-  }
-
   #dateFromChangeHandler = ([dateFrom]) => {
-    this.updateElement({
-      dateFrom: dateFrom,
-    });
+    this._state.dateFrom = dateFrom;
   };
 
   #dateToChangeHandler = ([dateTo]) => {
-    this.updateElement({
-      dateTo: dateTo,
-    });
+    this._state.dateTo = dateTo;
   };
 
   #setDatePickerFrom() {

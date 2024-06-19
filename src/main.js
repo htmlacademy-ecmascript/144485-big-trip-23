@@ -7,16 +7,20 @@ import PresenterInfoPanel from './presenter/presenter-info-panel.js';
 import CreationForm from './view/creation-form.js';
 import { render } from './framework/render.js';
 
-const filterContainer = document.querySelector('.trip-controls__filters');
+const filterContainerElement = document.querySelector('.trip-controls__filters');
 const tripMainElement = document.querySelector('.trip-main');
 
-const AUTHORIZATION = 'Basic hf7898sdfscv89';
+const AUTHORIZATION = 'Basic hf7898sdfscv88';
 const END_POINT = 'https://23.objects.htmlacademy.pro/big-trip';
 
 const pointsModel = new PointsModel({
   pointsApiService: new PointsApiService(END_POINT, AUTHORIZATION),
 });
 const filterModel = new FilterModel();
+
+const newPointButtonComponent = new CreationForm({
+  onClick: handleNewPointButtonClick,
+});
 
 const presenter = new PresenterMain({
   pointsModel,
@@ -25,18 +29,15 @@ const presenter = new PresenterMain({
 });
 
 const filterPresenter = new FilterPresenter({
-  filterContainer: filterContainer,
+  filterContainer: filterContainerElement,
   filterModel,
   pointsModel,
-});
-
-const newPointButtonComponent = new CreationForm({
-  onClick: handleNewPointButtonClick,
 });
 
 const presenterInfoPanel = new PresenterInfoPanel({
   tripInfoContainer: tripMainElement,
   pointsModel,
+  presenter: presenter
 });
 
 function handleNewPointButtonClick() {

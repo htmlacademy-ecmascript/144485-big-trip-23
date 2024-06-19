@@ -17,7 +17,6 @@ const createFilterPanel = (filters, currentFilter) => {
 
   return `<form class="trip-filters" action="#" method="get">
                 ${filtersList}
-
              <button class="visually-hidden" type="submit">Accept filter</button>
           </form>`;
 };

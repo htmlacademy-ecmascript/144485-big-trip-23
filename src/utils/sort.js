@@ -6,8 +6,12 @@ export const SORT_TYPE = {
   PRICE: 'price',
 };
 
-export const sortByDay = (pointA, pointB) => appDay(pointA.dateTo).diff(appDay(pointB.dateFrom));
+const getTimeDifferens = ({ dateFrom, dateTo }) => new Date(dateTo).getTime() - new Date(dateFrom).getTime();
 
-export const sortByTime = (pointA, pointB) => appDay(pointB.dateTo).diff(pointB.dateFrom) - appDay(pointA.dateTo).diff(pointA.dateFrom);
+const sortPointBy = {
+  [SORT_TYPE.DAY]: (points) => points.toSorted((a, b) => appDay(a.dateFrom).diff(b.dateFrom)),
+  [SORT_TYPE.TIME]: (points) => points.toSorted((a, b) => getTimeDifferens(b) - getTimeDifferens(a)),
+  [SORT_TYPE.PRICE]: (points) => points.toSorted((a, b) => b.basePrice - a.basePrice),
+};
 
-export const sortByPrice = (pointA, pointB) => pointB.basePrice - pointA.basePrice;
+export const sortPoints = (sortType, points) => sortPointBy[sortType](points);

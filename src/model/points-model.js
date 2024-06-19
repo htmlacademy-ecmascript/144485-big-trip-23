@@ -1,4 +1,3 @@
-// import { MOCKED_EVENTS } from '../mock/trip-event.js';
 import Observable from '../framework/observable.js';
 import { UpdateType } from '../utils/const.js';
 
@@ -25,13 +24,23 @@ export default class PointsModel extends Observable {
     return this.#destinations;
   }
 
+  getCurrentOffer(type) {
+    if (this.offers) {
+      return this.offers.find((item) => item.type === type);
+    }
+  }
+
+  getDestinationId(id) {
+    return this.destinations.find((item) => item.id === id);
+  }
+
   async init() {
     try {
       const points = await this.#pointsApiService.points;
       const offers = await this.#pointsApiService.offers;
       const destinations = await this.#pointsApiService.destinations;
-
       this.#points = points.map(this.#adaptToClient);
+
       this.#offers = offers;
       this.#destinations = destinations;
     } catch (err) {
@@ -53,7 +62,11 @@ export default class PointsModel extends Observable {
       const response = await this.#pointsApiService.updatePoint(update);
       const updatedPoint = this.#adaptToClient(response);
 
-      this.#points = [...this.#points.slice(0, index), updatedPoint, ...this.#points.slice(index + 1)];
+      this.#points = [
+        ...this.#points.slice(0, index),
+        updatedPoint,
+        ...this.#points.slice(index + 1)
+      ];
 
       this._notify(updateType, updatedPoint);
     } catch (err) {
@@ -66,12 +79,16 @@ export default class PointsModel extends Observable {
       const response = await this.#pointsApiService.addPoint(update);
       const newPoint = this.#adaptToClient(response);
 
-      this.#points = [newPoint, ...this.#points];
+      this.#points = [
+        newPoint,
+        ...this.#points
+      ];
 
       this._notify(updateType, newPoint);
     } catch (err) {
       throw new Error('Can\'t add point');
     }
+
   }
 
   async deletePoint(updateType, update) {
@@ -82,7 +99,10 @@ export default class PointsModel extends Observable {
 
     try {
       await this.#pointsApiService.deletePoint(update);
-      this.#points = [...this.#points.slice(0, index), ...this.#points.slice(index + 1)];
+      this.#points = [
+        ...this.#points.slice(0, index),
+        ...this.#points.slice(index + 1)
+      ];
 
       this._notify(updateType);
     } catch (err) {
@@ -96,7 +116,7 @@ export default class PointsModel extends Observable {
       basePrice: point['base_price'],
       dateFrom: new Date(point['date_from']),
       dateTo: new Date(point['date_to']),
-      isFavorite: point['is_favorite'],
+      isFavorite: point['is_favorite']
     };
 
     delete adaptedPoint['base_price'];
@@ -107,17 +127,5 @@ export default class PointsModel extends Observable {
     return adaptedPoint;
   }
 
-  getCurrentOffer(type) {
-    if (this.offers) {
-      return this.offers.find((item) => item.type === type);
-    }
-  }
-
-  getDestinationId(id) {
-    return this.destinations.find((item) => item.id === id);
-  }
-
-  getDestinationName(name) {
-    return this.#destinations.find((item) => item.name === name);
-  }
 }
+
