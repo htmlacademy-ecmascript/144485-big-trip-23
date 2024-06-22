@@ -43,18 +43,20 @@ const createCityList = (destinations) => {
   return cities.map(createCityItem).join('');
 };
 
-const createPointOffers = (offerCurrent, offersPoint) => {
-  if (!offerCurrent.offers.length) {
+const createPointOffers = (offers, offersPoint) => {
+  if (!offers.length) {
     return '';
   }
+
+  const selectedIds = new Set(offersPoint);
 
   return `
   <section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
     <div class="event__available-offers">
-    ${offerCurrent.offers.map((offer) => `
+    ${offers.map((offer) => `
         <div class="event__offer-selector">
-          <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name="${offer.title}" data-offer-id="${offer.id}" ${offersPoint.includes(offer.id) ? 'checked' : ''}>
+          <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name="${offer.title}" data-offer-id="${offer.id}" ${selectedIds.has(offer.id) ? 'checked' : ''}>
           <label class="event__offer-label" for="event-offer-${offer.id}">
             <span class="event__offer-title">${offer.title}</span> +&euro;&nbsp;<span class="event__offer-price">${offer.price}</span>
           </label>
@@ -91,11 +93,11 @@ const createWaypointForm = (waypoint, destinations, offers, pointsModel) => {
 
   const { type, dateFrom, dateTo, basePrice, offers: offersPoint, isDisabled, isSaving, isDeleting } = waypoint;
 
-  const offerCurrent = offers.find((item) => item.type === waypoint.type);
+  // const offerCurrent = offers.find((item) => item.type === waypoint.type);
   const destinationCurrent = destinations.find((item) => item.id === waypoint.destination);
 
   const createPointDestinationList = createPointDestination(destinationCurrent);
-  const createPointOffersList = createPointOffers(offerCurrent, offersPoint);
+  const createPointOffersList = createPointOffers(offers, offersPoint);
   const cityList = createCityList(destinations);
   const typeList = createTypeList(pointsModel.offers);
   const parsDateTo = appDay(dateTo);
@@ -162,8 +164,9 @@ export default class WaypointEdit extends AbstractStatefulView {
   #datepickerTo = null;
   #onEditFormSave = null;
   #pointsModel = null;
+  #getOffersByType = null;
 
-  constructor({ waypoint = BLANK_POINT, onEditFormSave, onEditFormRollupButtonClick, onDeleteForm, offers, pointsModel, destinations }) {
+  constructor({ waypoint = BLANK_POINT, onEditFormSave, onEditFormRollupButtonClick, onDeleteForm, offers, pointsModel, destinations, getOffersByType }) {
     super();
     this._setState(WaypointEdit.parsePointToState(waypoint));
     this.#offers = offers;
@@ -172,12 +175,14 @@ export default class WaypointEdit extends AbstractStatefulView {
     this.#onEditFormSave = onEditFormSave;
     this.#pointsModel = pointsModel;
     this.#onDeleteForm = onDeleteForm;
+    this.#getOffersByType = getOffersByType;
 
     this._restoreHandlers();
   }
 
   get template() {
-    return createWaypointForm(this._state, this.#destinations, this.#offers, this.#pointsModel, this.isDestinationText);
+    const offers = this.#getOffersByType(this._state.type);
+    return createWaypointForm(this._state, this.#destinations, offers, this.#pointsModel, this.isDestinationText);
   }
 
   reset(waypoint) {
