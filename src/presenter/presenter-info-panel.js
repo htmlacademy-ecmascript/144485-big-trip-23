@@ -12,11 +12,13 @@ export default class PresenterInfoPanel {
     this.#presenter = presenter;
     this.#pointsModel = pointsModel;
 
+
     this.#pointsModel.addObserver(this.#handleModelEvent);
   }
 
   init() {
-    const points = this.#presenter.points;
+    // const points = this.#presenter.points;
+    const points = this.#pointsModel.events;
     const offers = this.#pointsModel.offers;
     const destinations = this.#pointsModel.destinations;
     const prevInfoComponent = this.#tripInfoComponent;

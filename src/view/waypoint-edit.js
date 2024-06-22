@@ -32,14 +32,14 @@ const createTypeItem = (typeName) => {
 };
 
 
-const createTypeList = (arr) => {
-  const types = arr.map(((element) => element.type));
+const createTypeList = (offers) => {
+  const types = offers.map(((element) => element.type));
   const uniqueTypes = Array.from(new Set(types));
   return uniqueTypes.map(createTypeItem).join('');
 };
 
-const createCityList = (arr) => {
-  const cities = arr.map((element) => element.name);
+const createCityList = (destinations) => {
+  const cities = destinations.map((element) => element.name);
   return cities.map(createCityItem).join('');
 };
 
@@ -189,12 +189,12 @@ export default class WaypointEdit extends AbstractStatefulView {
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#eventRestBtnClickHandler);
     this.element.querySelector('.event__type-group').addEventListener('change', this.#eventTypeChangeHandler);
     this.element.querySelectorAll('.event__offer-selector input').forEach((offer) => offer.addEventListener('change', this.#offersChangeHandler));
-    this.element.querySelector('.event__input--destination').addEventListener('change', this.#eventDestinationToggleHandler);
-    this.element.querySelector('.event__input--price').addEventListener('change', this.#priceInputHandler);
+    this.element.querySelector('.event__input--destination').addEventListener('change', this.#eventDestinationChangeHandler);
+    this.element.querySelector('.event__input--price').addEventListener('change', this.#priceChangeHandler);
 
     if (this._state.id) {
       this.element.querySelector('.event__rollup-btn')
-        .addEventListener('click', this.#editFormRollupButtonHandler);
+        .addEventListener('click', this.#rollupButtonClickHandler);
     }
 
     this.#setDatePickerFrom();
@@ -216,7 +216,7 @@ export default class WaypointEdit extends AbstractStatefulView {
     }
   }
 
-  #eventDestinationToggleHandler = (evt) => {
+  #eventDestinationChangeHandler = (evt) => {
     evt.preventDefault();
 
     let selectedDestination = this.#destinations.find((destination) => evt.target.value === destination.name);
@@ -229,7 +229,7 @@ export default class WaypointEdit extends AbstractStatefulView {
     });
   };
 
-  #priceInputHandler = (evt) => {
+  #priceChangeHandler = (evt) => {
     evt.preventDefault();
 
     this._state.basePrice = evt.target.value;
@@ -262,7 +262,7 @@ export default class WaypointEdit extends AbstractStatefulView {
     });
   };
 
-  #editFormRollupButtonHandler = (evt) => {
+  #rollupButtonClickHandler = (evt) => {
     evt.preventDefault();
     this.#onEditFormRollupButtonClick();
   };

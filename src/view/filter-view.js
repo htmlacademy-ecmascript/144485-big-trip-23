@@ -10,7 +10,7 @@ const createFilterItem = (filter, currentFilter) => {
 </div>`;
 };
 
-const createFilterList = (array, currentFilter) => array.map((filter) => createFilterItem(filter, currentFilter)).join('');
+const createFilterList = (filters, currentFilter) => filters.map((filter) => createFilterItem(filter, currentFilter)).join('');
 
 const createFilterPanel = (filters, currentFilter) => {
   const filtersList = createFilterList(filters, currentFilter);
@@ -30,14 +30,14 @@ export default class FilterView extends AbstractView {
     this.#filters = filters;
     this.#currentFilter = currentFilterType;
     this.#handleFilterChange = onFilterChange;
-    this.element.addEventListener('change', this.#filterChangeHadler);
+    this.element.addEventListener('change', this.#filterChangeHandler);
   }
 
   get template() {
     return createFilterPanel(this.#filters, this.#currentFilter);
   }
 
-  #filterChangeHadler = (evt) => {
+  #filterChangeHandler = (evt) => {
     evt.preventDefault();
 
     this.#handleFilterChange(evt.target.value);

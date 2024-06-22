@@ -42,14 +42,14 @@ export default class SortPanel extends AbstractView {
     this.#currentSortType = currentSortType;
     this.#onSortTypeChange = onSortTypeChange;
 
-    this.element.addEventListener('click', this.#sortTypeChangeHandler);
+    this.element.addEventListener('click', this.#sortTypeClickHandler);
   }
 
   get template() {
     return createSortPanel(this.#currentSortType);
   }
 
-  #sortTypeChangeHandler = (evt) => {
+  #sortTypeClickHandler = (evt) => {
     evt.preventDefault();
     if (evt.target.hasAttribute('data-sort-type')) {
       this.#onSortTypeChange(evt.target.dataset.sortType);

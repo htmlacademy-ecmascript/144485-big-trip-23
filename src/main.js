@@ -26,6 +26,7 @@ const presenter = new PresenterMain({
   pointsModel,
   filterModel,
   onNewPointDestroy: handleNewPointButtonClose,
+  newPointButtonComponent: newPointButtonComponent
 });
 
 const filterPresenter = new PresenterFilter({
@@ -56,6 +57,8 @@ newPointButtonComponent.element.disabled = true;
 presenter.init();
 filterPresenter.init();
 pointsModel.init().finally(() => {
-  newPointButtonComponent.element.disabled = false;
+  if (pointsModel.points) {
+    newPointButtonComponent.element.disabled = false;
+  }
 });
 presenterInfoPanel.init();
