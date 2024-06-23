@@ -94,7 +94,7 @@ export default class PresenterMain {
           this.#pointPresenterItems.get(update.id).setSaving();
           await this.#pointsModel.updatePoint(updateType, update);
 
-        } catch (err) {
+        } catch (error) {
           this.#pointPresenterItems.get(update.id).setAborting();
         }
         break;
@@ -102,7 +102,7 @@ export default class PresenterMain {
         try {
           this.#presenterNewPoint.setSaving();
           await this.#pointsModel.addPoint(updateType, update);
-        } catch (err) {
+        } catch (error) {
           this.#presenterNewPoint.setAborting();
         }
         break;
@@ -110,7 +110,7 @@ export default class PresenterMain {
         this.#pointPresenterItems.get(update.id).setDeleting();
         try {
           await this.#pointsModel.deletePoint(updateType, update);
-        } catch (err) {
+        } catch (error) {
           this.#pointPresenterItems.get(update.id).setAborting();
         }
         break;
@@ -259,6 +259,4 @@ export default class PresenterMain {
       this.#listEmptyMessage();
     }
   };
-
-
 }

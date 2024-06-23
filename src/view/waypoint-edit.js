@@ -93,9 +93,7 @@ const createWaypointForm = (waypoint, destinations, offers, pointsModel) => {
 
   const { type, dateFrom, dateTo, basePrice, offers: offersPoint, isDisabled, isSaving, isDeleting } = waypoint;
 
-  // const offerCurrent = offers.find((item) => item.type === waypoint.type);
   const destinationCurrent = destinations.find((item) => item.id === waypoint.destination);
-
   const createPointDestinationList = createPointDestination(destinationCurrent);
   const createPointOffersList = createPointOffers(offers, offersPoint);
   const cityList = createCityList(destinations);
@@ -159,17 +157,15 @@ export default class WaypointEdit extends AbstractStatefulView {
   #onEditFormRollupButtonClick = null;
   #onDeleteForm = null;
   #destinations = null;
-  #offers = null;
   #datepickerFrom = null;
   #datepickerTo = null;
   #onEditFormSave = null;
   #pointsModel = null;
   #getOffersByType = null;
 
-  constructor({ waypoint = BLANK_POINT, onEditFormSave, onEditFormRollupButtonClick, onDeleteForm, offers, pointsModel, destinations, getOffersByType }) {
+  constructor({ waypoint = BLANK_POINT, onEditFormSave, onEditFormRollupButtonClick, onDeleteForm, pointsModel, destinations, getOffersByType }) {
     super();
     this._setState(WaypointEdit.parsePointToState(waypoint));
-    this.#offers = offers;
     this.#destinations = destinations;
     this.#onEditFormRollupButtonClick = onEditFormRollupButtonClick;
     this.#onEditFormSave = onEditFormSave;
