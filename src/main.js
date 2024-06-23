@@ -26,6 +26,7 @@ const presenter = new PresenterMain({
   pointsModel,
   filterModel,
   onNewPointDestroy: handleNewPointButtonClose,
+  newPointButtonComponent: newPointButtonComponent
 });
 
 const filterPresenter = new PresenterFilter({
@@ -36,8 +37,7 @@ const filterPresenter = new PresenterFilter({
 
 const presenterInfoPanel = new PresenterInfoPanel({
   tripInfoContainer: tripMainElement,
-  pointsModel,
-  presenter: presenter
+  pointsModel
 });
 
 function handleNewPointButtonClick() {
@@ -56,6 +56,8 @@ newPointButtonComponent.element.disabled = true;
 presenter.init();
 filterPresenter.init();
 pointsModel.init().finally(() => {
-  newPointButtonComponent.element.disabled = false;
+  if (pointsModel.points) {
+    newPointButtonComponent.element.disabled = false;
+  }
 });
 presenterInfoPanel.init();

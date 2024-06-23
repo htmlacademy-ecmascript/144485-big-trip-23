@@ -5,18 +5,16 @@ export default class PresenterInfoPanel {
   #tripInfoContainer = null;
   #pointsModel = null;
   #tripInfoComponent = null;
-  #presenter = null;
 
-  constructor({ tripInfoContainer, pointsModel, presenter }) {
+  constructor({ tripInfoContainer, pointsModel }) {
     this.#tripInfoContainer = tripInfoContainer;
-    this.#presenter = presenter;
     this.#pointsModel = pointsModel;
 
     this.#pointsModel.addObserver(this.#handleModelEvent);
   }
 
   init() {
-    const points = this.#presenter.points;
+    const points = this.#pointsModel.events;
     const offers = this.#pointsModel.offers;
     const destinations = this.#pointsModel.destinations;
     const prevInfoComponent = this.#tripInfoComponent;

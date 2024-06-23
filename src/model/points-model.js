@@ -24,6 +24,10 @@ export default class PointsModel extends Observable {
     return this.#destinations;
   }
 
+  getOffersByType(type) {
+    return this.offers.find((item) => item.type === type)?.offers ?? [];
+  }
+
   getCurrentOffer(type) {
     if (this.offers) {
       return this.offers.find((item) => item.type === type);
@@ -43,7 +47,7 @@ export default class PointsModel extends Observable {
 
       this.#offers = offers;
       this.#destinations = destinations;
-    } catch (err) {
+    } catch (error) {
       this.#points = [];
       this.#offers = [];
       this.#destinations = [];
@@ -69,7 +73,7 @@ export default class PointsModel extends Observable {
       ];
 
       this._notify(updateType, updatedPoint);
-    } catch (err) {
+    } catch (error) {
       throw new Error('Can\'t update point');
     }
   }
@@ -85,7 +89,7 @@ export default class PointsModel extends Observable {
       ];
 
       this._notify(updateType, newPoint);
-    } catch (err) {
+    } catch (error) {
       throw new Error('Can\'t add point');
     }
 
@@ -105,7 +109,7 @@ export default class PointsModel extends Observable {
       ];
 
       this._notify(updateType);
-    } catch (err) {
+    } catch (error) {
       throw new Error('Can\'t delete point');
     }
   }

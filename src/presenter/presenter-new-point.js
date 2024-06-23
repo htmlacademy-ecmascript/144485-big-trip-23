@@ -32,6 +32,7 @@ export default class PresenterNewPoint {
       destinations: this.#pointsModel.destinations,
       onEditFormSave: this.#handleFormSubmit,
       onDeleteForm: this.#handleFormCancelButtonClick,
+      getOffersByType: (type) => this.#pointsModel.getOffersByType(type)
     });
 
     render(this.#pointEditComponent, this.#pointListContainer, RenderPosition.AFTERBEGIN);

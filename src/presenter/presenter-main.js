@@ -22,7 +22,7 @@ export default class PresenterMain {
   #currentFilterType = FilterType.EVERYTHING;
   #waypointList = new WaypointList();
   #pointsModel = null;
-  #pointPresenterMap = new Map();
+  #pointPresenterItems = new Map();
   #currentSortType = SORT_TYPE.DAY;
   #filterModel = null;
   #listMessageComponent = null;
@@ -39,8 +39,9 @@ export default class PresenterMain {
   #sortRendered = false;
   #errorComponent = new ErrorView();
   #pointPresenter = null;
+  #newPointButtonComponent = null;
 
-  constructor({ pointsModel, filterModel, onNewPointDestroy }) {
+  constructor({ pointsModel, filterModel, onNewPointDestroy, newPointButtonComponent }) {
     this.#pointsModel = pointsModel;
     this.#filterModel = filterModel;
     this.#offers = pointsModel.offers;
@@ -49,6 +50,7 @@ export default class PresenterMain {
     this.#tripEventsElement = this.pageMainElement.querySelector('.trip-events');
     this.#pointsModel.addObserver(this.#handlerModelEvent);
     this.#filterModel.addObserver(this.#handlerModelEvent);
+    this.#newPointButtonComponent = newPointButtonComponent;
 
     this.#presenterNewPoint = new PresenterNewPoint({
       pointsModel: this.#pointsModel,
@@ -89,27 +91,27 @@ export default class PresenterMain {
       case UserAction.UPDATE_POINT:
 
         try {
-          this.#pointPresenterMap.get(update.id).setSaving();
+          this.#pointPresenterItems.get(update.id).setSaving();
           await this.#pointsModel.updatePoint(updateType, update);
 
-        } catch (err) {
-          this.#pointPresenterMap.get(update.id).setAborting();
+        } catch (error) {
+          this.#pointPresenterItems.get(update.id).setAborting();
         }
         break;
       case UserAction.ADD_POINT:
         try {
           this.#presenterNewPoint.setSaving();
           await this.#pointsModel.addPoint(updateType, update);
-        } catch (err) {
+        } catch (error) {
           this.#presenterNewPoint.setAborting();
         }
         break;
       case UserAction.DELETE_POINT:
-        this.#pointPresenterMap.get(update.id).setDeleting();
+        this.#pointPresenterItems.get(update.id).setDeleting();
         try {
           await this.#pointsModel.deletePoint(updateType, update);
-        } catch (err) {
-          this.#pointPresenterMap.get(update.id).setAborting();
+        } catch (error) {
+          this.#pointPresenterItems.get(update.id).setAborting();
         }
         break;
     }
@@ -120,7 +122,7 @@ export default class PresenterMain {
   #handlerModelEvent = (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
-        this.#pointPresenterMap.get(data.id).init(data);
+        this.#pointPresenterItems.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
         this.#clearPointsList();
@@ -174,8 +176,8 @@ export default class PresenterMain {
 
   #clearPointsList(resetSortType = false) {
     this.#presenterNewPoint.destroy();
-    this.#pointPresenterMap.forEach((presenter) => presenter.destroy());
-    this.#pointPresenterMap.clear();
+    this.#pointPresenterItems.forEach((presenter) => presenter.destroy());
+    this.#pointPresenterItems.clear();
     remove(this.#sortPanel);
     this.#sortRendered = false;
     remove(this.#loadingComponent);
@@ -201,26 +203,38 @@ export default class PresenterMain {
       onModeChange: this.#onModeChange,
     });
     this.#pointPresenter.init(point);
-    this.#pointPresenterMap.set(point.id, this.#pointPresenter);
+    this.#pointPresenterItems.set(point.id, this.#pointPresenter);
   };
+
+  #disabledNewPoint = () => {
+    this.#newPointButtonComponent.element.disabled = true;
+  };
+
+  #enabledNewPoint = () => {
+    this.#newPointButtonComponent.element.disabled = false;
+  };
+
 
   #renderWaypointList = () => {
     render(this.#waypointList, this.#tripEventsElement);
 
     if (this.#isLoading) {
       this.#renderLoadingMessage();
+      this.#disabledNewPoint();
       return;
     }
 
     if (!this.points.length && !this.#pointsModel.offers.length && !this.#pointsModel.destinations.length) {
       this.#renderErrorMessage();
       remove(this.#sortPanel);
+
       return;
     }
 
     if (this.points.length) {
       this.#renderSortPanel();
       remove(this.#loadingComponent);
+      this.#enabledNewPoint();
       this.#renderWaypoints();
     } else {
       this.#listEmptyMessage();
@@ -230,7 +244,7 @@ export default class PresenterMain {
 
   #onModeChange = () => {
     this.#presenterNewPoint.destroy();
-    this.#pointPresenterMap.forEach((presenter) => presenter.resetView());
+    this.#pointPresenterItems.forEach((presenter) => presenter.resetView());
   };
 
   #deletingEmptyPoint = () => {
@@ -245,6 +259,4 @@ export default class PresenterMain {
       this.#listEmptyMessage();
     }
   };
-
-
 }

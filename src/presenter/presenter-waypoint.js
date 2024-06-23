@@ -56,6 +56,7 @@ export default class PresenterWaypoint {
       offers: this.#offers,
       offerCurrent: this.#offersCurrent,
       onDeleteForm: this.#handleEditFormDeleteButtonClick,
+      getOffersByType: (type) => this.#pointsModel.getOffersByType(type)
     });
 
     if ((prevEventViewComponent === null) | (prevEventEditViewComponent === null)) {
